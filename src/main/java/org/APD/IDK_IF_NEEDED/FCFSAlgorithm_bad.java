@@ -21,7 +21,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with CloudSim Plus. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cloudsimplus.examples.power;
+package org.APD.IDK_IF_NEEDED;
 
 import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
@@ -31,16 +31,17 @@ import org.cloudsimplus.cloudlets.CloudletSimple;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
 import org.cloudsimplus.datacenters.DatacenterSimple;
+import org.cloudsimplus.examples.power.PowerSpecFileExample;
+import org.cloudsimplus.examples.resourceusage.VmsCpuUsageExample;
 import org.cloudsimplus.examples.resourceusage.VmsRamAndBwUsageExample;
 import org.cloudsimplus.hosts.Host;
 import org.cloudsimplus.hosts.HostSimple;
 import org.cloudsimplus.power.models.PowerModel;
 import org.cloudsimplus.power.models.PowerModelHostSimple;
-import org.APD.PowerModels.PowerModelPstateProcessor_2GHz_Via_C7_M;
-import org.APD.PowerModels.PowerModelPStateProcessor_AMD_Opteon;
 import org.cloudsimplus.resources.Pe;
 import org.cloudsimplus.resources.PeSimple;
-import org.cloudsimplus.schedulers.vm.VmSchedulerTimeShared;
+import org.cloudsimplus.schedulers.cloudlet.CloudletSchedulerSpaceShared;
+import org.cloudsimplus.schedulers.vm.VmSchedulerSpaceShared;
 import org.cloudsimplus.utilizationmodels.UtilizationModelDynamic;
 import org.cloudsimplus.utilizationmodels.UtilizationModelFull;
 import org.cloudsimplus.vms.HostResourceStats;
@@ -48,9 +49,7 @@ import org.cloudsimplus.vms.Vm;
 import org.cloudsimplus.vms.VmResourceStats;
 import org.cloudsimplus.vms.VmSimple;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Comparator.comparingLong;
 
@@ -61,7 +60,8 @@ import static java.util.Comparator.comparingLong;
  *
  * <p>It creates the number of cloudlets defined in
  * {@link #CLOUDLETS}. All cloudlets will require 100% of PEs they are using all the time.
- * Half of these cloudlets are created with the length defined by {@link #CLOUDLET_LENGTH}
+ * these cloudlets are created with the length defined by {@link #CLOUDLET_LENGTH_MIN} and
+ * the other half with the double of this length, defined by {@link #CLOUDLET_LENGTH_MAX}.
  * and the other half will have the double of this length.
  * This way, it's possible to see that for the last half of the
  * simulation time, a Host doesn't use the entire CPU capacity,
@@ -91,19 +91,19 @@ import static java.util.Comparator.comparingLong;
  *
  * @see PowerSpecFileExample
  * @see VmsRamAndBwUsageExample
- * @see org.cloudsimplus.examples.resourceusage.VmsCpuUsageExample
+ * @see VmsCpuUsageExample
  */
-public class PowerExample {
+public class FCFSAlgorithm_bad {
     /**
      * Defines, between other things, the time intervals
      * to keep Hosts CPU utilization history records.
      */
-    private static final int SCHEDULING_INTERVAL = 10;
-    private static final int HOSTS = 2;
-    private static final int HOST_PES = 8;
+    private static final int SCHEDULING_INTERVAL = 0;
+    private static final int HOSTS = 8;
+    private static final int HOST_PES = 1;
 
     /** Indicates the time (in seconds) the Host takes to start up. */
-    private static final double HOST_START_UP_DELAY = 5;
+    private static final double HOST_START_UP_DELAY = 0;
 
     /** Indicates the time (in seconds) the Host takes to shut down. */
     private static final double HOST_SHUT_DOWN_DELAY = 3;
@@ -114,12 +114,13 @@ public class PowerExample {
     /** Indicates Host power consumption (in Watts) during shutdown. */
     private static final double HOST_SHUT_DOWN_POWER = 3;
 
-    private static final int VMS = 4;
-    private static final int VM_PES = 4;
+    private static final int VMS = 8;
+    private static final int VM_PES = 1;
 
-    private static final int CLOUDLETS = 8;
-    private static final int CLOUDLET_PES = 2;
-    private static final int CLOUDLET_LENGTH = 50000;
+    private static final int CLOUDLETS = 70;
+    private static final int CLOUDLET_PES = 1;
+    private static final int CLOUDLET_LENGTH_MIN = 1000;
+    private static final int CLOUDLET_LENGTH_MAX = 2000;
 
     /**
      * Defines the power a Host uses, even if it's idle (in Watts).
@@ -139,10 +140,10 @@ public class PowerExample {
     private final List<Host> hostList;
 
     public static void main(String[] args) {
-        new PowerExample();
+        new FCFSAlgorithm_bad();
     }
 
-    private PowerExample() {
+    private FCFSAlgorithm_bad() {
         /*Enables just some level of log messages.
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
@@ -152,11 +153,25 @@ public class PowerExample {
         datacenter0 = createDatacenter();
         //Creates a broker that is a software acting on behalf of a cloud customer to manage his/her VMs and Cloudlets
         broker0 = new DatacenterBrokerSimple(simulation);
-
         vmList = createVms();
         cloudletList = createCloudlets();
+//        broker0.submitCloudletList(cloudletList);
+
+        // set all the VMs to use the CloudletSchedulerSpaceShared scheduler
+        for (Vm vm : vmList) {
+            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
+            // print the VM allocation
+            System.out.printf("Vm %d allocated to Broker %d%n", vm.getId(), broker0.getId());
+        }
+
         broker0.submitVmList(vmList);
-        broker0.submitCloudletList(cloudletList);
+//        broker0.submitCloudlet(cloudletList.get(0));
+        Queue<Cloudlet> queue = new ArrayDeque<>(cloudletList);
+
+        simulation.addOnSimulationStartListener(evt -> {
+            System.out.printf("Simulation clock: %.2f\n", simulation.clock());
+                submitNextFCFS(queue, broker0, vmList);
+        });
 
         simulation.start();
 
@@ -168,6 +183,57 @@ public class PowerExample {
         new CloudletsTableBuilder(cloudletFinishedList).build();
         printHostsCpuUtilizationAndPowerConsumption();
         printVmsCpuUtilizationAndPowerConsumption();
+    }
+
+    private void submitNextFCFS(Queue<Cloudlet> queue, DatacenterBroker broker, List<Vm> vmList) {
+        if (queue.isEmpty()) return;
+
+        List<Cloudlet> submittedCloudlets = new ArrayList<>();
+
+        while (!queue.isEmpty()) {
+            Cloudlet cl = queue.peek(); // don't remove yet
+
+            // Check for an idle VM
+            Vm freeVm = vmList.stream()
+                    .filter(v -> v.getCloudletScheduler().getCloudletExecList().isEmpty())
+                    .filter(v -> v.getCloudletScheduler().getCloudletWaitingList().isEmpty()) // VM must be inactive
+                    .filter(v -> v.isFinished())
+                    .findFirst()
+                    .orElse(null);
+
+//            freeVm.isFinished()
+
+            if (freeVm == null)
+                break;
+
+            cl = queue.poll(); // remove now
+            assert cl != null;
+            cl.setVm(freeVm);
+
+            System.out.printf("Submitting Cloudlet %d to Vm %d at time %.2f%n",
+                    cl.getId(), freeVm.getId(), simulation.clock());
+
+            broker.submitCloudlet(cl);  // Cloudlet is now scheduled (but not *yet* running)
+            submittedCloudlets.add(cl);
+        }
+        System.out.println("Done SHIT \n\n\n\n");
+
+        // Now attach finish listeners to re-trigger FCFS and print actual exec list
+        for (Cloudlet cl : submittedCloudlets) {
+            cl.addOnFinishListener(info -> {
+                Vm vm = cl.getVm();
+
+//                // ❗ This is where the exec list is now accurate — simulation has advanced
+//                List<CloudletExecution> execList = vm.getCloudletScheduler().getCloudletExecList();
+//                System.out.printf("After Cloudlet %d finished at %.2f, VM %d is running %d cloudlets: %s%n",
+//                        cl.getId(), info.getTime(), vm.getId(),
+//                        execList.size(),
+//                        execList.stream().map(Cloudlet::getId).toList());
+
+                // Resume FCFS scheduling
+                submitNextFCFS(queue, broker, vmList);
+            });
+        }
     }
 
     /**
@@ -268,13 +334,14 @@ public class PowerExample {
         final long ram = 2048; //in Megabytes
         final long bw = 10000; //in Megabits/s
         final long storage = 1000000; //in Megabytes
-        final var vmScheduler = new VmSchedulerTimeShared();
+        final var vmScheduler = new VmSchedulerSpaceShared();
+
 
         final var host = new HostSimple(ram, bw, storage, peList);
         host.setStartupDelay(HOST_START_UP_DELAY)
             .setShutDownDelay(HOST_SHUT_DOWN_DELAY);
 
-        final var powerModel = new PowerModelPstateProcessor_2GHz_Via_C7_M(0);
+        final var powerModel = new PowerModelHostSimple(MAX_POWER, STATIC_POWER);
         powerModel
                   .setStartupPower(HOST_START_UP_POWER)
                   .setShutDownPower(HOST_SHUT_DOWN_POWER);
@@ -295,6 +362,7 @@ public class PowerExample {
         for (int i = 0; i < VMS; i++) {
             final var vm = new VmSimple(i, 1000, VM_PES);
             vm.setRam(512).setBw(1000).setSize(10000).enableUtilizationStats();
+            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
             list.add(vm);
         }
 
@@ -306,10 +374,13 @@ public class PowerExample {
      */
     private List<Cloudlet> createCloudlets() {
         final var cloudletList = new ArrayList<Cloudlet>(CLOUDLETS);
-        final var utilization = new UtilizationModelDynamic(0.2);
+        final var utilization = new UtilizationModelDynamic(0.002);
         for (int i = 0; i < CLOUDLETS; i++) {
             //Sets half of the cloudlets with the defined length and the other half with the double of it
-            final long length = i < CLOUDLETS / 2 ? CLOUDLET_LENGTH : CLOUDLET_LENGTH * 2;
+            Random r = new Random();
+            int low = CLOUDLET_LENGTH_MIN;
+            final long length = r.nextInt(CLOUDLET_LENGTH_MAX -low) + low;
+//            final long length = CLOUDLET_LENGTH_MIN;
             final var cloudlet =
                 new CloudletSimple(i, length, CLOUDLET_PES)
                     .setFileSize(1024)

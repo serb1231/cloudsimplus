@@ -21,7 +21,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with CloudSim Plus. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cloudsimplus.examples.power;
+package org.APD.PowerModels;
 
 import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
@@ -31,13 +31,12 @@ import org.cloudsimplus.cloudlets.CloudletSimple;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
 import org.cloudsimplus.datacenters.DatacenterSimple;
+import org.cloudsimplus.examples.power.PowerSpecFileExample;
 import org.cloudsimplus.examples.resourceusage.VmsRamAndBwUsageExample;
 import org.cloudsimplus.hosts.Host;
 import org.cloudsimplus.hosts.HostSimple;
 import org.cloudsimplus.power.models.PowerModel;
 import org.cloudsimplus.power.models.PowerModelHostSimple;
-import org.APD.PowerModels.PowerModelPstateProcessor_2GHz_Via_C7_M;
-import org.APD.PowerModels.PowerModelPStateProcessor_AMD_Opteon;
 import org.cloudsimplus.resources.Pe;
 import org.cloudsimplus.resources.PeSimple;
 import org.cloudsimplus.schedulers.vm.VmSchedulerTimeShared;
@@ -158,6 +157,8 @@ public class PowerExample {
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
+
+
         simulation.start();
 
         System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL+" -------------------------------");
@@ -274,7 +275,7 @@ public class PowerExample {
         host.setStartupDelay(HOST_START_UP_DELAY)
             .setShutDownDelay(HOST_SHUT_DOWN_DELAY);
 
-        final var powerModel = new PowerModelPstateProcessor_2GHz_Via_C7_M(0);
+        final var powerModel = new PowerModelHostSimple(MAX_POWER, STATIC_POWER);
         powerModel
                   .setStartupPower(HOST_START_UP_POWER)
                   .setShutDownPower(HOST_SHUT_DOWN_POWER);
