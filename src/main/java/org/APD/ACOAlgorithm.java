@@ -3,6 +3,7 @@ package org.APD;
 import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
+import org.APD.DeadlineCloudlet;
 import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.cloudlets.CloudletSimple;
 import org.cloudsimplus.core.CloudSimPlus;
@@ -53,11 +54,11 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
                 DatacenterBroker broker = new DatacenterBrokerSimple(sim);
 
                 List<Vm> vmClone = copyVMs(vmList);
-                List<Cloudlet> cloudletClone = copyCloudlets(cloudletList);
+                List<DeadlineCloudlet> cloudletClone = copyCloudlets(cloudletList);
 
                 broker.submitVmList(vmClone);
 
-                for (Cloudlet cl : cloudletClone) {
+                for (DeadlineCloudlet cl : cloudletClone) {
                     Vm selectedVm = selectVmBasedOnPheromone(cl, vmClone, pheromoneMatrix);
                     cl.setVm(selectedVm);
                     ant.assign(cl, selectedVm);
@@ -80,8 +81,8 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
         // submit all the Vm's to the broker
         broker0.submitVmList(vmList);
-        for (Map.Entry<Cloudlet, Vm> entry : bestAnt.getAllocation().entrySet()) {
-            Cloudlet cl = entry.getKey();
+        for (Map.Entry<DeadlineCloudlet, Vm> entry : bestAnt.getAllocation().entrySet()) {
+            DeadlineCloudlet cl = entry.getKey();
             Vm vm = entry.getValue();
             cl.setVm(vm);
             broker0.submitCloudlet(cl);
@@ -93,8 +94,8 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
         simulation.start();
 
         System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
-        final var cloudletFinishedList = broker0.getCloudletFinishedList();
-        final Comparator<Cloudlet> hostComparator = comparingLong(cl -> cl.getVm().getHost().getId());
+        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();
+        final Comparator<DeadlineCloudlet> hostComparator = comparingLong(cl -> cl.getVm().getHost().getId());
         cloudletFinishedList.sort(hostComparator.thenComparing(cl -> cl.getVm().getId()));
 
         new CloudletsTableBuilder(cloudletFinishedList).build();
@@ -121,11 +122,11 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
         return dc;
     }
 
-    private List<Cloudlet> copyCloudlets(List<Cloudlet> cloudletList) {
-        List<Cloudlet> cloudletClone = new ArrayList<>(cloudletList.size());
+    private List<DeadlineCloudlet> copyCloudlets(List<DeadlineCloudlet> cloudletList) {
+        List<DeadlineCloudlet> cloudletClone = new ArrayList<>(cloudletList.size());
 
-        for (Cloudlet cloudlet : cloudletList) {
-            Cloudlet clonedCloudlet = new CloudletSimple(cloudlet.getId(), cloudlet.getLength(), cloudlet.getPesNumber())
+        for (DeadlineCloudlet cloudlet : cloudletList) {
+            DeadlineCloudlet clonedCloudlet = (DeadlineCloudlet) new DeadlineCloudlet(cloudlet.getId(), cloudlet.getLength(), cloudlet.getPesNumber())
                     .setFileSize(cloudlet.getFileSize())
                     .setOutputSize(cloudlet.getOutputSize())
                     .setUtilizationModelCpu(cloudlet.getUtilizationModelCpu())
@@ -186,16 +187,16 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
         }
     }
 
-    private double evaluateAnt(List<Cloudlet> cloudlets) {
+    private double evaluateAnt(List<DeadlineCloudlet> cloudlets) {
         double makespan = cloudlets.stream()
-                .mapToDouble(Cloudlet::getFinishTime)
+                .mapToDouble(DeadlineCloudlet::getFinishTime)
                 .max()
                 .orElse(0);
 
         return 1.0 / makespan;  // Minimize makespan
     }
 
-    public Vm selectVmBasedOnPheromone(Cloudlet cloudlet, List<Vm> vmList, double[][] pheromoneMatrix) {
+    public Vm selectVmBasedOnPheromone(DeadlineCloudlet cloudlet, List<Vm> vmList, double[][] pheromoneMatrix) {
         int cloudletId = (int) cloudlet.getId();
 
         // Step 1: Extract pheromone levels for this cloudlet
@@ -256,11 +257,11 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
                 DatacenterBroker broker = new DatacenterBrokerSimple(sim);
 
                 List<Vm> vmClone = copyVMs(vmList);
-                List<Cloudlet> cloudletClone = copyCloudlets(cloudletList);
+                List<DeadlineCloudlet> cloudletClone = copyCloudlets(cloudletList);
 
                 broker.submitVmList(vmClone);
 
-                for (Cloudlet cl : cloudletClone) {
+                for (DeadlineCloudlet cl : cloudletClone) {
                     Vm selectedVm = selectVmBasedOnPheromone(cl, vmClone, pheromoneMatrix);
                     cl.setVm(selectedVm);
                     ant.assign(cl, selectedVm);
@@ -283,8 +284,8 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
         // submit all the Vm's to the broker
         broker0.submitVmList(vmList);
-        for (Map.Entry<Cloudlet, Vm> entry : bestAnt.getAllocation().entrySet()) {
-            Cloudlet cl = entry.getKey();
+        for (Map.Entry<DeadlineCloudlet, Vm> entry : bestAnt.getAllocation().entrySet()) {
+            DeadlineCloudlet cl = entry.getKey();
             Vm vm = entry.getValue();
             cl.setVm(vm);
             broker0.submitCloudlet(cl);
@@ -305,14 +306,14 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
 
 class Ant {
-    private final Map<Cloudlet, Vm> allocation = new HashMap<>();
+    private final Map<DeadlineCloudlet, Vm> allocation = new HashMap<>();
     private double fitness;
 
-    public void assign(Cloudlet cl, Vm vm) {
+    public void assign(DeadlineCloudlet cl, Vm vm) {
         allocation.put(cl, vm);
     }
 
-    public Map<Cloudlet, Vm> getAllocation() {
+    public Map<DeadlineCloudlet, Vm> getAllocation() {
         return allocation;
     }
 

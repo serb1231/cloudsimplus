@@ -1,7 +1,7 @@
 package org.APD;
 
 import org.cloudsimplus.brokers.DatacenterBroker;
-import org.cloudsimplus.cloudlets.Cloudlet;
+import org.APD.DeadlineCloudlet;
 import org.cloudsimplus.cloudlets.CloudletSimple;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
@@ -56,7 +56,7 @@ public abstract class BaseSchedulingAlgorithm implements SchedulingAlgorithm {
     protected int CLOUDLET_LENGTH_MIN = 100000;
     protected int CLOUDLET_LENGTH_MAX = 500000;
 
-    List<Cloudlet> cloudletList;
+    List<DeadlineCloudlet> cloudletList;
 
     /**
      * Defines the power a Host uses, even if it's idle (in Watts).
@@ -228,8 +228,8 @@ public abstract class BaseSchedulingAlgorithm implements SchedulingAlgorithm {
         return list;
     }
 
-    protected List<Cloudlet> createCloudlets() {
-        final var cloudletList = new ArrayList<Cloudlet>(CLOUDLETS);
+    protected List<DeadlineCloudlet> createCloudlets() {
+        final var cloudletList = new ArrayList<DeadlineCloudlet>(CLOUDLETS);
         final var utilization = new UtilizationModelDynamic(0.002);
         Random r = new Random();
 
@@ -237,7 +237,7 @@ public abstract class BaseSchedulingAlgorithm implements SchedulingAlgorithm {
             int low = CLOUDLET_LENGTH_MIN;
             final long length = r.nextInt(CLOUDLET_LENGTH_MAX - low) + low;
 
-            Cloudlet cloudlet = new CloudletSimple(i, length, CLOUDLET_PES)
+            DeadlineCloudlet cloudlet = (DeadlineCloudlet) new DeadlineCloudlet(i, length, CLOUDLET_PES)
                     .setFileSize(1024)
                     .setOutputSize(1024)
                     .setUtilizationModelCpu(new UtilizationModelFull())

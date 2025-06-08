@@ -1,10 +1,11 @@
 package org.APD;
 
 import ch.qos.logback.classic.Level;
-import org.cloudsimplus.cloudlets.Cloudlet;
-import org.cloudsimplus.cloudlets.CloudletSimple;
+//import org.cloudsimplus.cloudlets.DeadlineCloudlet;
+//import org.cloudsimplus.cloudlets.CloudletSimple;
 import org.APD.DeadlineCloudlet;
 
+import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.hosts.Host;
 import org.cloudsimplus.power.models.PowerModel;
 import org.cloudsimplus.power.models.PowerModelHostSimple;
@@ -49,8 +50,8 @@ public class CompareAlgorithms {
 
     private static final int CLOUDLETS = 300;
     private static final int CLOUDLET_PES = 1;
-    private static final int CLOUDLET_LENGTH_MIN = 10000;
-    private static final int CLOUDLET_LENGTH_MAX = 50000;
+    private static final int CLOUDLET_LENGTH_MIN = 1000;
+    private static final int CLOUDLET_LENGTH_MAX = 5000;
 
     /**
      * Defines the power a Host uses, even if it's idle (in Watts).
@@ -66,10 +67,10 @@ public class CompareAlgorithms {
         Log.setLevel(Level.OFF);
 
         List<Vm> vmList = createVms();
-        List<Cloudlet> cloudletList = createCloudlets();
+        List<DeadlineCloudlet> cloudletList = createCloudlets();
 
         List<Vm> vmListCopy = copyVMs(vmList);
-        List<Cloudlet> cloudletListCopy = copyCloudlets(cloudletList);
+        List<DeadlineCloudlet> cloudletListCopy = copyCloudlets(cloudletList);
 
         RelevantDataForAlgorithms data = new RelevantDataForAlgorithms(
                 SCHEDULING_INTERVAL,
@@ -147,11 +148,11 @@ public class CompareAlgorithms {
 
     }
 
-    private static List<Cloudlet> copyCloudlets(List<Cloudlet> cloudletList) {
-        List<Cloudlet> cloudletClone = new ArrayList<>(cloudletList.size());
+    private static List<DeadlineCloudlet> copyCloudlets(List<DeadlineCloudlet> cloudletList) {
+        List<DeadlineCloudlet> cloudletClone = new ArrayList<>(cloudletList.size());
 
-        for (Cloudlet cloudlet : cloudletList) {
-            Cloudlet clonedCloudlet = new CloudletSimple(cloudlet.getId(), cloudlet.getLength(), cloudlet.getPesNumber())
+        for (DeadlineCloudlet cloudlet : cloudletList) {
+            DeadlineCloudlet clonedCloudlet = (DeadlineCloudlet) new DeadlineCloudlet(cloudlet.getId(), cloudlet.getLength(), cloudlet.getPesNumber())
                     .setFileSize(cloudlet.getFileSize())
                     .setOutputSize(cloudlet.getOutputSize())
                     .setUtilizationModelCpu(cloudlet.getUtilizationModelCpu())
@@ -198,8 +199,8 @@ public class CompareAlgorithms {
         return list;
     }
 
-    private static List<Cloudlet> createCloudlets() {
-        final var cloudletList = new ArrayList<Cloudlet>(CLOUDLETS);
+    private static List<DeadlineCloudlet> createCloudlets() {
+        final var cloudletList = new ArrayList<DeadlineCloudlet>(CLOUDLETS);
         final var utilization = new UtilizationModelDynamic(0.002);
         Random r = new Random();
 
@@ -207,7 +208,7 @@ public class CompareAlgorithms {
             int low = CLOUDLET_LENGTH_MIN;
             final long length = r.nextInt(CLOUDLET_LENGTH_MAX - low) + low;
 
-            Cloudlet cloudlet = new CloudletSimple(i, length, CLOUDLET_PES)
+            DeadlineCloudlet cloudlet = (DeadlineCloudlet) new DeadlineCloudlet(i, length, CLOUDLET_PES)
                     .setFileSize(1024)
                     .setOutputSize(1024)
                     .setUtilizationModelCpu(new UtilizationModelFull())

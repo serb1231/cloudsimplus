@@ -2,6 +2,7 @@ package org.APD;
 
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
+import org.APD.DeadlineCloudlet;
 import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
@@ -10,6 +11,7 @@ import org.cloudsimplus.vms.Vm;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import static java.util.Comparator.comparingLong;
 
@@ -32,12 +34,12 @@ public class RoundRobinAlgorithm extends BaseSchedulingAlgorithm{
         broker0.submitCloudletList(cloudletList);
 
         for (int i = 0; i < cloudletList.size(); i++) {
-            Cloudlet cloudlet = cloudletList.get(i);
+            DeadlineCloudlet cloudlet = cloudletList.get(i);
             Vm vm = vmList.get(i % vmList.size()); // Allocate in a sequential manne
             vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
             // print the cloudlet and vm allocation
             vm.setShutDownDelay(20);
-            System.out.printf("Binding Cloudlet %d to Vm %d%n", cloudlet.getId(), vm.getId());
+            System.out.printf("Binding DeadlineCloudlet %d to Vm %d%n", cloudlet.getId(), vm.getId());
 
             broker0.bindCloudletToVm(cloudlet, vm);
         }
@@ -45,8 +47,8 @@ public class RoundRobinAlgorithm extends BaseSchedulingAlgorithm{
         simulation.start();
 
         System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL+" -------------------------------");
-        final var cloudletFinishedList = broker0.getCloudletFinishedList();
-        final Comparator<Cloudlet> hostComparator = comparingLong(cl -> cl.getVm().getHost().getId());
+        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();
+        final Comparator<DeadlineCloudlet> hostComparator = comparingLong(cl -> cl.getVm().getHost().getId());
         cloudletFinishedList.sort(hostComparator.thenComparing(cl -> cl.getVm().getId()));
 
         new CloudletsTableBuilder(cloudletFinishedList).build();
@@ -69,7 +71,7 @@ public class RoundRobinAlgorithm extends BaseSchedulingAlgorithm{
         broker0.submitCloudletList(cloudletList);
 
         for (int i = 0; i < cloudletList.size(); i++) {
-            Cloudlet cloudlet = cloudletList.get(i);
+            DeadlineCloudlet cloudlet = cloudletList.get(i);
             Vm vm = vmList.get(i % vmList.size()); // Allocate in a sequential manne
             vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
             // print the cloudlet and vm allocation

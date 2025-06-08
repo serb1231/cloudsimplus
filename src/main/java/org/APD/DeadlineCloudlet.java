@@ -5,7 +5,7 @@ import org.cloudsimplus.cloudlets.CloudletSimple;
 public class DeadlineCloudlet extends CloudletSimple {
     private double deadline;
 
-    public DeadlineCloudlet(long id, long length, int pes) {
+    public DeadlineCloudlet(long id, long length, long pes) {
         super(id, length, pes);
     }
 

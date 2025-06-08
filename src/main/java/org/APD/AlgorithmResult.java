@@ -8,8 +8,8 @@ import java.util.List;
 
 public record AlgorithmResult(
         String algorithmName,
-        List<Cloudlet> cloudlets,
+        List<DeadlineCloudlet> cloudlets,
         List<Host> hosts,
         List<Vm> vms,
-        List<Cloudlet> cloudletFinishedList
+        List<DeadlineCloudlet> cloudletFinishedList
 ) {}

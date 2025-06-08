@@ -22,5 +22,5 @@ public record RelevantDataForAlgorithms(
         double staticPower,
         int maxPower,
         List<Vm> vmList,
-        List<Cloudlet> cloudletList
+        List<DeadlineCloudlet> cloudletList
 ) {}
