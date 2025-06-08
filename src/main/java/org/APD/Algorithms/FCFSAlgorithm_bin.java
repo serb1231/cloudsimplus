@@ -1,5 +1,9 @@
-package org.APD;
+package org.APD.Algorithms;
 
+import ch.qos.logback.classic.Level;
+import org.APD.AlgorithmResult;
+import org.APD.DeadlineCloudlet;
+import org.APD.RelevantDataForAlgorithms;
 import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
@@ -7,6 +11,7 @@ import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
 import org.cloudsimplus.schedulers.cloudlet.CloudletSchedulerSpaceShared;
+import org.cloudsimplus.util.Log;
 import org.cloudsimplus.vms.Vm;
 
 import java.util.*;
@@ -16,11 +21,12 @@ import static java.util.Comparator.comparingLong;
 public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
 
     public static void main(String[] args) {
+        Log.setLevel(Level.OFF);
         new FCFSAlgorithm_bin();
     }
 
     // Run the algorothm using the default data from the BaseSchedulingAlgorithm class
-    FCFSAlgorithm_bin() {
+    public FCFSAlgorithm_bin() {
 
         simulation = new CloudSimPlus();
         hostList = new ArrayList<>(HOSTS);
@@ -34,27 +40,30 @@ public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
         for (Vm vm : vmList) {
             vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
             // print the VM allocation
-            System.out.printf("Vm %d allocated to Broker %d%n", vm.getId(), broker0.getId());
+//            System.out.printf("Vm %d allocated to Broker %d%n", vm.getId(), broker0.getId());
         }
 
         broker0.submitVmList(vmList);
         Queue<Cloudlet> queue = new ArrayDeque<>(cloudletList);
         Set<Vm> busyVms = new HashSet<>();
         simulation.addOnSimulationStartListener(evt -> {
-            System.out.printf("Simulation clock: %.2f\n", simulation.clock());
+//            System.out.printf("Simulation clock: %.2f\n", simulation.clock());
             submitNextFCFS(queue, broker0, vmList, busyVms);
         });
 
         simulation.start();
+//
+//        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL+" -------------------------------");
+//        final var cloudletFinishedList = broker0.getCloudletFinishedList();
+//        final Comparator<Cloudlet> hostComparator = comparingLong(cl -> cl.getVm().getHost().getId());
+//        cloudletFinishedList.sort(hostComparator.thenComparing(cl -> cl.getVm().getId()));
+//
+//        new CloudletsTableBuilder(cloudletFinishedList).build();
+//        printHostsCpuUtilizationAndPowerConsumption();
+//        printVmsCpuUtilizationAndPowerConsumption();
+//
+//        printSLAViolations(broker0.getCloudletFinishedList());
 
-        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL+" -------------------------------");
-        final var cloudletFinishedList = broker0.getCloudletFinishedList();
-        final Comparator<Cloudlet> hostComparator = comparingLong(cl -> cl.getVm().getHost().getId());
-        cloudletFinishedList.sort(hostComparator.thenComparing(cl -> cl.getVm().getId()));
-
-        new CloudletsTableBuilder(cloudletFinishedList).build();
-        printHostsCpuUtilizationAndPowerConsumption();
-        printVmsCpuUtilizationAndPowerConsumption();
     }
 
     @Override
@@ -72,14 +81,14 @@ public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
         for (Vm vm : vmList) {
             vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
             // print the VM allocation
-            System.out.printf("Vm %d allocated to Broker %d%n", vm.getId(), broker0.getId());
+//            System.out.printf("Vm %d allocated to Broker %d%n", vm.getId(), broker0.getId());
         }
 
         broker0.submitVmList(vmList);
         Queue<Cloudlet> queue = new ArrayDeque<>(cloudletList);
         Set<Vm> busyVms = new HashSet<>();
         simulation.addOnSimulationStartListener(evt -> {
-            System.out.printf("Simulation clock: %.2f\n", simulation.clock());
+//            System.out.printf("Simulation clock: %.2f\n", simulation.clock());
             submitNextFCFS(queue, broker0, vmList, busyVms);
         });
 
@@ -111,7 +120,13 @@ public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
             cl = queue.poll();
             cl.setVm(freeVm);
             busyVms.add(freeVm); // mark VM as busy
-
+            double submissionDelay = cl.getSubmissionDelay();
+            // if the current time is grater than the submission delay, set it to 0
+            if (submissionDelay > simulation.clock()) {
+                cl.setSubmissionDelay(submissionDelay - simulation.clock());
+            } else {
+                cl.setSubmissionDelay(0);
+            }
             broker.submitCloudlet(cl);
             submittedCloudlets.add(cl);
         }

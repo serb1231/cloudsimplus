@@ -1,8 +1,8 @@
-package org.APD;
+package org.APD.Algorithms;
 
-import org.cloudsimplus.brokers.DatacenterBroker;
 import org.APD.DeadlineCloudlet;
-import org.cloudsimplus.cloudlets.CloudletSimple;
+import org.cloudsimplus.brokers.DatacenterBroker;
+import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
 import org.cloudsimplus.datacenters.DatacenterSimple;
@@ -25,9 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static java.util.Comparator.comparingDouble;
 import static java.util.Comparator.comparingLong;
 
-public abstract class BaseSchedulingAlgorithm implements SchedulingAlgorithm {
+public class AlgorithmBaseFunctionalities {
     /**
      * Defines, between other things, the time intervals
      * to keep Hosts CPU utilization history records.
@@ -53,8 +54,8 @@ public abstract class BaseSchedulingAlgorithm implements SchedulingAlgorithm {
 
     protected int CLOUDLETS = 9;
     protected int CLOUDLET_PES = 1;
-    protected int CLOUDLET_LENGTH_MIN = 100000;
-    protected int CLOUDLET_LENGTH_MAX = 500000;
+    protected int CLOUDLET_LENGTH_MIN = 1000;
+    protected int CLOUDLET_LENGTH_MAX = 5000;
 
     List<DeadlineCloudlet> cloudletList;
 
@@ -73,26 +74,8 @@ public abstract class BaseSchedulingAlgorithm implements SchedulingAlgorithm {
     protected List<Vm> vmList;
     protected List<Host> hostList;
 
-    protected void copyGivenDataLocally(RelevantDataForAlgorithms relevantDataForAlgorithms) {
-        // copy all the relevant data from the record to local variables
-        SCHEDULING_INTERVAL = relevantDataForAlgorithms.schedulingInterval();
-        HOSTS = relevantDataForAlgorithms.hosts();
-        HOST_PES = relevantDataForAlgorithms.hostPes();
-        HOST_START_UP_DELAY = relevantDataForAlgorithms.hostStartUpDelay();
-        HOST_SHUT_DOWN_DELAY = relevantDataForAlgorithms.hostShutDownDelay();
-        HOST_START_UP_POWER = relevantDataForAlgorithms.hostStartUpPower();
-        HOST_SHUT_DOWN_POWER = relevantDataForAlgorithms.hostShutDownPower();
-        VMS = relevantDataForAlgorithms.vms();
-        VM_PES = relevantDataForAlgorithms.vmPes();
-        CLOUDLETS = relevantDataForAlgorithms.cloudlets();
-        CLOUDLET_PES = relevantDataForAlgorithms.cloudletPes();
-        CLOUDLET_LENGTH_MIN = relevantDataForAlgorithms.cloudletLengthMin();
-        CLOUDLET_LENGTH_MAX = relevantDataForAlgorithms.cloudletLengthMax();
-        STATIC_POWER = relevantDataForAlgorithms.staticPower();
-        MAX_POWER = relevantDataForAlgorithms.maxPower();
-        vmList = relevantDataForAlgorithms.vmList();
-        cloudletList = relevantDataForAlgorithms.cloudletList();
-    }
+    int TOTAL_FRAMES = 3; // how long you want the simulation to run in 10s chunks
+    int MIPS_PER_VM = 1000; // Adjust this to your VM's actual MIPS capacity
 
 
     /**
@@ -187,7 +170,7 @@ public abstract class BaseSchedulingAlgorithm implements SchedulingAlgorithm {
         final var peList = new ArrayList<Pe>(HOST_PES);
         //List of Host's CPUs (Processing Elements, PEs)
         for (int i = 0; i < HOST_PES; i++) {
-            peList.add(new PeSimple(1000));
+            peList.add(new PeSimple(MIPS_PER_VM));
         }
 
         final long ram = 2048; //in Megabytes
@@ -228,34 +211,116 @@ public abstract class BaseSchedulingAlgorithm implements SchedulingAlgorithm {
         return list;
     }
 
-    protected List<DeadlineCloudlet> createCloudlets() {
-        final var cloudletList = new ArrayList<DeadlineCloudlet>(CLOUDLETS);
+    protected  List<DeadlineCloudlet> createCloudlets() {
+        final List<DeadlineCloudlet> cloudletList = new ArrayList<>();
         final var utilization = new UtilizationModelDynamic(0.002);
-        Random r = new Random();
+        final Random random = new Random();
 
-        for (int i = 0; i < CLOUDLETS; i++) {
-            int low = CLOUDLET_LENGTH_MIN;
-            final long length = r.nextInt(CLOUDLET_LENGTH_MAX - low) + low;
+        int id = 0;
+        int pes = 1;
 
-            DeadlineCloudlet cloudlet = (DeadlineCloudlet) new DeadlineCloudlet(i, length, CLOUDLET_PES)
-                    .setFileSize(1024)
-                    .setOutputSize(1024)
-                    .setUtilizationModelCpu(new UtilizationModelFull())
-                    .setUtilizationModelRam(utilization)
-                    .setUtilizationModelBw(utilization);
+        for (int frame = 0; frame < TOTAL_FRAMES; frame++) {
+            double frameStartTime = frame * 10;
+            int cloudletsThisFrame = CLOUDLETS - 2 + random.nextInt(5); // between 8 and 12 cloudlets
 
-            // Set submission delay to simulate staggered arrival times
-            double delay = i * 2; // each cloudlet arrives 2 seconds after the previous
-            cloudlet.setSubmissionDelay(delay);
+            double totalExecTime = 0;
 
-            cloudletList.add(cloudlet);
+            for (int i = 0; i < cloudletsThisFrame; i++) {
+                double execTimeSec = 1.0 + random.nextDouble() * 4.0; // 1–5s
+                long length = (long) (execTimeSec * MIPS_PER_VM); // length = time × MIPS
+
+                double submissionDelay = frameStartTime + random.nextDouble() * 10;
+                double deadline = submissionDelay + execTimeSec + 1.0; // 1s margin
+
+                // print the submission delay and deadline for the clo
+//                System.out.printf("Frame %d, Cloudlet %d: Submission Delay = %.2f, Deadline = %.2f%n",
+//                        frame, i, submissionDelay, deadline);
+
+                DeadlineCloudlet cloudlet = (DeadlineCloudlet) new DeadlineCloudlet(id++, length, pes)
+                        .setFileSize(1024)
+                        .setOutputSize(1024)
+                        .setUtilizationModelCpu(new UtilizationModelFull())
+                        .setUtilizationModelRam(utilization)
+                        .setUtilizationModelBw(utilization);
+
+                cloudlet.setSubmissionDelay(submissionDelay);
+                cloudlet.setDeadline(deadline);
+
+
+                cloudletList.add(cloudlet);
+                totalExecTime += execTimeSec;
+            }
+
+//            System.out.printf("Frame %d: %d cloudlets, total estimated exec time: %.2fs%n",
+//                    frame, cloudletsThisFrame, totalExecTime);
         }
+
+        // sort the cloudlets by submission delay
+        cloudletList.sort(comparingDouble(Cloudlet::getSubmissionDelay));
 
         return cloudletList;
     }
 
-    @Override
-    public String getName() {
-        return "FCFSAlgorithm_bin";
+    protected List<DeadlineCloudlet> copyCloudlets(List<DeadlineCloudlet> cloudletList) {
+        List<DeadlineCloudlet> cloudletClone = new ArrayList<>(cloudletList.size());
+
+        for (DeadlineCloudlet cloudlet : cloudletList) {
+            DeadlineCloudlet clonedCloudlet = (DeadlineCloudlet) new DeadlineCloudlet(cloudlet.getId(), cloudlet.getLength(), cloudlet.getPesNumber())
+                    .setFileSize(cloudlet.getFileSize())
+                    .setOutputSize(cloudlet.getOutputSize())
+                    .setUtilizationModelCpu(cloudlet.getUtilizationModelCpu())
+                    .setUtilizationModelRam(cloudlet.getUtilizationModelRam())
+                    .setUtilizationModelBw(cloudlet.getUtilizationModelBw());
+
+            // Set the deadline for the cloned cloudlet
+            clonedCloudlet.setDeadline(cloudlet.getDeadline());
+            clonedCloudlet.setSubmissionDelay(cloudlet.getSubmissionDelay());
+            cloudletClone.add(clonedCloudlet);
+        }
+
+        return cloudletClone;
+    }
+
+    protected List<Vm> copyVMs(List<Vm> vmList) {
+        List<Vm> vmClone = new ArrayList<>(vmList.size());
+
+        for (Vm vm : vmList) {
+            Vm clonedVm = new VmSimple(vm.getMips(), vm.getPesNumber());
+
+            clonedVm.setRam((long) vm.getRam().getCapacity())
+                    .setBw((long) vm.getBw().getCapacity())
+                    .setSize((long) vm.getStorage().getCapacity())
+                    .setCloudletScheduler(new CloudletSchedulerSpaceShared());
+
+            clonedVm.enableUtilizationStats(); // optional
+
+            vmClone.add(clonedVm);
+        }
+
+        return vmClone;
+    }
+
+    protected void printSLAViolations(List<DeadlineCloudlet> cloudletListFinished) {
+        System.out.println("\n------------------------------- SLA VIOLATIONS -------------------------------");
+
+        int violations = 0;
+        int total = 0;
+
+        for (Cloudlet cl : cloudletListFinished) {
+            if (cl instanceof DeadlineCloudlet dc) {
+                total++;
+                double finish = dc.getFinishTime();
+                double deadline = dc.getDeadline();
+                boolean metDeadline = finish <= deadline;
+
+                System.out.printf("Cloudlet %d: Finish Time = %.2f, Deadline = %.2f -> %s%n",
+                        dc.getId(), finish, deadline, metDeadline ? "OK" : "VIOLATED");
+
+                if (!metDeadline) violations++;
+            }
+        }
+
+        System.out.printf("Total SLA violations: %d out of %d cloudlets (%.2f%%)%n",
+                violations, total, violations * 100.0 / total);
     }
 }
