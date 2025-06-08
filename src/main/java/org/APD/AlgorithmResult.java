@@ -8,10 +8,8 @@ import java.util.List;
 
 public record AlgorithmResult(
         String algorithmName,
-        double makespan,
-        double totalEnergy,
-        double avgCpuUtilization,
-        List<Cloudlet> finishedCloudlets,
+        List<Cloudlet> cloudlets,
         List<Host> hosts,
-        List<Vm> vms
+        List<Vm> vms,
+        List<Cloudlet> cloudletFinishedList
 ) {}
