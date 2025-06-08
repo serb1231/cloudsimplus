@@ -228,25 +228,26 @@ public abstract class BaseSchedulingAlgorithm implements SchedulingAlgorithm {
         return list;
     }
 
-    /**
-     * Creates a list of Cloudlets.
-     */
     protected List<Cloudlet> createCloudlets() {
         final var cloudletList = new ArrayList<Cloudlet>(CLOUDLETS);
         final var utilization = new UtilizationModelDynamic(0.002);
+        Random r = new Random();
+
         for (int i = 0; i < CLOUDLETS; i++) {
-            //Sets half of the cloudlets with the defined length and the other half with the double of it
-            Random r = new Random();
             int low = CLOUDLET_LENGTH_MIN;
-            final long length = r.nextInt(CLOUDLET_LENGTH_MAX -low) + low;
-//            final long length = CLOUDLET_LENGTH_MIN;
-            final var cloudlet =
-                    new CloudletSimple(i, length, CLOUDLET_PES)
-                            .setFileSize(1024)
-                            .setOutputSize(1024)
-                            .setUtilizationModelCpu(new UtilizationModelFull())
-                            .setUtilizationModelRam(utilization)
-                            .setUtilizationModelBw(utilization);
+            final long length = r.nextInt(CLOUDLET_LENGTH_MAX - low) + low;
+
+            Cloudlet cloudlet = new CloudletSimple(i, length, CLOUDLET_PES)
+                    .setFileSize(1024)
+                    .setOutputSize(1024)
+                    .setUtilizationModelCpu(new UtilizationModelFull())
+                    .setUtilizationModelRam(utilization)
+                    .setUtilizationModelBw(utilization);
+
+            // Set submission delay to simulate staggered arrival times
+            double delay = i * 2; // each cloudlet arrives 2 seconds after the previous
+            cloudlet.setSubmissionDelay(delay);
+
             cloudletList.add(cloudlet);
         }
 

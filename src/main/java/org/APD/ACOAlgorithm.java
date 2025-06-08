@@ -305,7 +305,7 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
 
 class Ant {
-    private Map<Cloudlet, Vm> allocation = new HashMap<>();
+    private final Map<Cloudlet, Vm> allocation = new HashMap<>();
     private double fitness;
 
     public void assign(Cloudlet cl, Vm vm) {
