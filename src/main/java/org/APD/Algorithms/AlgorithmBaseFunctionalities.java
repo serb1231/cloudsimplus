@@ -226,15 +226,11 @@ public class AlgorithmBaseFunctionalities {
             double totalExecTime = 0;
 
             for (int i = 0; i < cloudletsThisFrame; i++) {
-                double execTimeSec = 1.0 + random.nextDouble() * 4.0; // 1–5s
+                double execTimeSec = 1.0 + random.nextDouble() * 2.0; // 1–5s
                 long length = (long) (execTimeSec * MIPS_PER_VM); // length = time × MIPS
 
                 double submissionDelay = frameStartTime + random.nextDouble() * 10;
-                double deadline = submissionDelay + execTimeSec + 1.0; // 1s margin
-
-                // print the submission delay and deadline for the clo
-//                System.out.printf("Frame %d, Cloudlet %d: Submission Delay = %.2f, Deadline = %.2f%n",
-//                        frame, i, submissionDelay, deadline);
+                double deadline = submissionDelay + execTimeSec * 4 + 1.0; // 1s margin
 
                 DeadlineCloudlet cloudlet = (DeadlineCloudlet) new DeadlineCloudlet(id++, length, pes)
                         .setFileSize(1024)
@@ -250,14 +246,15 @@ public class AlgorithmBaseFunctionalities {
                 cloudletList.add(cloudlet);
                 totalExecTime += execTimeSec;
             }
-
-//            System.out.printf("Frame %d: %d cloudlets, total estimated exec time: %.2fs%n",
-//                    frame, cloudletsThisFrame, totalExecTime);
         }
 
         // sort the cloudlets by submission delay
         cloudletList.sort(comparingDouble(Cloudlet::getSubmissionDelay));
-
+        // print the cloudlets, submission delay and deadline
+//        for (DeadlineCloudlet cloudlet : cloudletList) {
+//            System.out.printf("Cloudlet ID: %d, Submission Delay: %.2f, Deadline: %.2f, Exec Time: %.2f%n",
+//                    cloudlet.getId(), cloudlet.getSubmissionDelay(), cloudlet.getDeadline(), (double)cloudlet.getLength() / MIPS_PER_VM);
+//        }
         return cloudletList;
     }
 
