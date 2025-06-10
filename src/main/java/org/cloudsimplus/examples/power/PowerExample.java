@@ -241,6 +241,10 @@ public class PowerExample {
         System.out.printf(
             "Host %2d CPU Usage mean: %6.1f%% | Power Consumption mean: %8.0f W%n",
             host.getId(), utilizationPercentMean * 100, watts);
+
+        host.getPowerModel().addStartupTotals();
+        final double startUpTotal = host.getPowerModel().getPowerMeasurement().getTotalPower();
+        System.out.printf("Host %2d Startup Power Total: %8.0f W%n", host.getId(), startUpTotal);
     }
 
     /**

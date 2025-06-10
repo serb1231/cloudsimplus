@@ -1,6 +1,7 @@
 package org.APD.Algorithms;
 
 import org.APD.DeadlineCloudlet;
+import org.APD.PowerModels.PowerModelPStateProcessor;
 import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.core.CloudSimPlus;
@@ -8,8 +9,9 @@ import org.cloudsimplus.datacenters.Datacenter;
 import org.cloudsimplus.datacenters.DatacenterSimple;
 import org.cloudsimplus.hosts.Host;
 import org.cloudsimplus.hosts.HostSimple;
-import org.cloudsimplus.power.models.PowerModel;
+//import org.cloudsimplus.power.models.PowerModel;
 import org.cloudsimplus.power.models.PowerModelHostSimple;
+import org.APD.PowerModels.PowerModelPstateProcessor_2GHz_Via_C7_M;
 import org.cloudsimplus.resources.Pe;
 import org.cloudsimplus.resources.PeSimple;
 import org.cloudsimplus.schedulers.cloudlet.CloudletSchedulerSpaceShared;
@@ -22,6 +24,7 @@ import org.cloudsimplus.vms.VmResourceStats;
 import org.cloudsimplus.vms.VmSimple;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -52,7 +55,7 @@ public class AlgorithmBaseFunctionalities {
     protected int VMS = 3;
     protected int VM_PES = 1;
 
-    protected int CLOUDLETS = 9;
+    protected int CLOUDLETS_PER_FRAME = 5;
     protected int CLOUDLET_PES = 1;
     protected int CLOUDLET_LENGTH_MIN = 1000;
     protected int CLOUDLET_LENGTH_MAX = 5000;
@@ -62,20 +65,22 @@ public class AlgorithmBaseFunctionalities {
     /**
      * Defines the power a Host uses, even if it's idle (in Watts).
      */
-    protected double STATIC_POWER = 35;
+    protected double STATIC_POWER = 500;
 
     /**
      * The max power a Host uses (in Watts).
      */
-    protected int MAX_POWER = 50;
+    protected int MAX_POWER = 5000;
 
     protected CloudSimPlus simulation;
     protected DatacenterBroker broker0;
     protected List<Vm> vmList;
     protected List<Host> hostList;
 
-    int TOTAL_FRAMES = 3; // how long you want the simulation to run in 10s chunks
-    int MIPS_PER_VM = 1000; // Adjust this to your VM's actual MIPS capacity
+    int TOTAL_FRAMES = 30; // how long you want the simulation to run in 10s chunks
+    int MIPS_PER_VM = 500; // Adjust this to your VM's actual MIPS capacity
+    int MIPS_PER_HOST = 500; // Adjust this to your Host's actual MIPS capacity
+    int MIPS_PER_CLOUDLET_COMPLETION = 16000;
 
 
     /**
@@ -105,7 +110,7 @@ public class AlgorithmBaseFunctionalities {
      *
      * <p>This way, we have to compute VM power consumption by sharing a supposed Host static power
      * consumption with each VM, as it's being shown here.
-     * Not all {@link PowerModel} have this static power consumption.
+     * Not all {@link PowerModelPstateProcessor_2GHz_Via_C7_M} have this static power consumption.
      * However, the way the VM power consumption
      * is computed here, that detail is abstracted.
      * </p>
@@ -113,17 +118,19 @@ public class AlgorithmBaseFunctionalities {
     protected void printVmsCpuUtilizationAndPowerConsumption() {
         vmList.sort(comparingLong(vm -> vm.getHost().getId()));
         for (Vm vm : vmList) {
+            //vm.getUtilizationHistory().enable(); // Enable utilization history if not already enabled
             final var powerModel = vm.getHost().getPowerModel();
-            final double hostStaticPower = powerModel instanceof PowerModelHostSimple powerModelHost ? powerModelHost.getStaticPower() : 0;
+            final double hostStaticPower = powerModel instanceof PowerModelPStateProcessor powerModelHost ? powerModelHost.getStaticPower() : 0;
             final double hostStaticPowerByVm = hostStaticPower / vm.getHost().getVmCreatedList().size();
 
             //VM CPU utilization relative to the host capacity
             final double vmRelativeCpuUtilization = vm.getCpuUtilizationStats().getMean() / vm.getHost().getVmCreatedList().size();
             final double vmPower = powerModel.getPower(vmRelativeCpuUtilization) - hostStaticPower + hostStaticPowerByVm; // W
             final VmResourceStats cpuStats = vm.getCpuUtilizationStats();
+            // also print the hostStaticPower, hostStaticPowerByVM, and vmRelativeCpuUtilization
             System.out.printf(
-                    "Vm   %2d CPU Usage Mean: %6.1f%% | Power Consumption Mean: %8.0f W%n",
-                    vm.getId(), cpuStats.getMean() *100, vmPower);
+                    "Vm   %2d CPU Usage Mean: %6.1f%% | Power Consumption Mean: %8.0f W (Host Static Power: %.1f W, Host Static Power by VM: %.1f W, VM Relative CPU Utilization: %.2f)%n",
+                    vm.getId(), cpuStats.getMean() * 100, vmPower, hostStaticPower, hostStaticPowerByVm, vmRelativeCpuUtilization);
         }
     }
 
@@ -146,9 +153,11 @@ public class AlgorithmBaseFunctionalities {
         //The total Host's CPU utilization for the time specified by the map key
         final double utilizationPercentMean = cpuStats.getMean();
         final double watts = host.getPowerModel().getPower(utilizationPercentMean);
+        final double maxWattsPossible = host.getPowerModel().getPower(1);
         System.out.printf(
-                "Host %2d CPU Usage mean: %6.1f%% | Power Consumption mean: %8.0f W%n",
-                host.getId(), utilizationPercentMean * 100, watts);
+                "Host %2d CPU Usage mean: %6.1f%% | Power Consumption : %8.0f W%n, | Max Power: %8.0f W%n",
+                host.getId(), utilizationPercentMean * 100, watts, maxWattsPossible);
+
     }
 
     /**
@@ -166,11 +175,22 @@ public class AlgorithmBaseFunctionalities {
         return dc;
     }
 
+    protected Datacenter createDatacenter(CloudSimPlus simulation, List<Host> hostList) {
+        for (int i = 0; i < HOSTS; i++) {
+            final var host = createPowerHost(i);
+            hostList.add(host);
+        }
+
+        final var dc = new DatacenterSimple(simulation, hostList);
+        dc.setSchedulingInterval(SCHEDULING_INTERVAL);
+        return dc;
+    }
+
     protected Host createPowerHost(final int id) {
         final var peList = new ArrayList<Pe>(HOST_PES);
         //List of Host's CPUs (Processing Elements, PEs)
         for (int i = 0; i < HOST_PES; i++) {
-            peList.add(new PeSimple(MIPS_PER_VM));
+            peList.add(new PeSimple(MIPS_PER_HOST));
         }
 
         final long ram = 2048; //in Megabytes
@@ -183,7 +203,7 @@ public class AlgorithmBaseFunctionalities {
         host.setStartupDelay(HOST_START_UP_DELAY)
                 .setShutDownDelay(HOST_SHUT_DOWN_DELAY);
 
-        final var powerModel = new PowerModelHostSimple(MAX_POWER, STATIC_POWER);
+        final var powerModel = new PowerModelPstateProcessor_2GHz_Via_C7_M(0);
         powerModel
                 .setStartupPower(HOST_START_UP_POWER)
                 .setShutDownPower(HOST_SHUT_DOWN_POWER);
@@ -202,7 +222,7 @@ public class AlgorithmBaseFunctionalities {
     protected List<Vm> createVms() {
         final var list = new ArrayList<Vm>(VMS);
         for (int i = 0; i < VMS; i++) {
-            final var vm = new VmSimple(i, 1000, VM_PES);
+            final var vm = new VmSimple(i, MIPS_PER_VM, VM_PES);
             vm.setRam(512).setBw(1000).setSize(10000).enableUtilizationStats();
             vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
             list.add(vm);
@@ -221,16 +241,16 @@ public class AlgorithmBaseFunctionalities {
 
         for (int frame = 0; frame < TOTAL_FRAMES; frame++) {
             double frameStartTime = frame * 10;
-            int cloudletsThisFrame = CLOUDLETS - 2 + random.nextInt(5); // between 8 and 12 cloudlets
+            int cloudletsThisFrame = CLOUDLETS_PER_FRAME - 2 + random.nextInt(5); // between 8 and 12 cloudlets
 
             double totalExecTime = 0;
 
             for (int i = 0; i < cloudletsThisFrame; i++) {
                 double execTimeSec = 1.0 + random.nextDouble() * 2.0; // 1–5s
-                long length = (long) (execTimeSec * MIPS_PER_VM); // length = time × MIPS
+                long length = (long) (execTimeSec * MIPS_PER_CLOUDLET_COMPLETION); // length = time × MIPS
 
                 double submissionDelay = frameStartTime + random.nextDouble() * 10;
-                double deadline = submissionDelay + execTimeSec * 4 + 1.0; // 1s margin
+                double deadline = submissionDelay + execTimeSec * 10 + 5.0; // 1s margin
 
                 DeadlineCloudlet cloudlet = (DeadlineCloudlet) new DeadlineCloudlet(id++, length, pes)
                         .setFileSize(1024)
@@ -257,6 +277,72 @@ public class AlgorithmBaseFunctionalities {
 //        }
         return cloudletList;
     }
+
+    /**
+     * Builds a workload in frames where the *average* job size
+     * can drift up or down ±TREND_FACTOR with probability TREND_PROB
+     * from one frame to the next.
+     */
+    protected List<DeadlineCloudlet> createCloudletsWithTrend() {
+        final List<DeadlineCloudlet> cloudletList = new ArrayList<>();
+        final UtilizationModelDynamic utilization = new UtilizationModelDynamic(0.002);
+        final Random rnd = new Random();
+
+        final double TREND_FACTOR  = 0.20;   // 20 % up or down
+        final double TREND_PROB    = 0.20;   // 20 % chance of a trend change
+        final double BASE_MEAN_SEC = 2.0;    // start-up mean exec-time (s)
+
+        double currentMeanSec = BASE_MEAN_SEC;  // mutable “moving mean”
+        int id = 0, pes = 1;
+
+        for (int frame = 0; frame < TOTAL_FRAMES; frame++) {
+
+            /* --- 1. Possibly shift the mean for this frame ------------------- */
+            if (rnd.nextDouble() < TREND_PROB) {                 // trend event?
+                double direction = rnd.nextBoolean() ? 1 : -1;   // up or down
+                currentMeanSec *= 1.0 + direction * TREND_FACTOR;
+                currentMeanSec = Math.max(0.2, currentMeanSec);  // keep sane
+            }
+
+            /* --- 2. Decide how many cloudlets this frame -------------------- */
+            int cloudletsThisFrame = CLOUDLETS_PER_FRAME - 2 + rnd.nextInt(5);  // 8–12
+            double frameStartTime  = frame * 10;
+
+            /* --- 3. Generate the cloudlets ---------------------------------- */
+            double frameTotalSec = 0;
+            for (int i = 0; i < cloudletsThisFrame; i++) {
+
+                // Jitter each job around the current mean (±50 %)
+                double execTimeSec = currentMeanSec * (0.5 + rnd.nextDouble()); // 0.5–1.5 × mean
+                long length        = (long) (execTimeSec * MIPS_PER_VM);
+
+                double submissionDelay = frameStartTime + rnd.nextDouble() * 10;
+                double deadline        = submissionDelay + execTimeSec * 10 + 5.0;
+
+                DeadlineCloudlet cl = (DeadlineCloudlet) new DeadlineCloudlet(id++, length, pes)
+                        .setFileSize(1024)
+                        .setOutputSize(1024)
+                        .setUtilizationModelCpu(new UtilizationModelFull())
+                        .setUtilizationModelRam(utilization)
+                        .setUtilizationModelBw(utilization);
+
+                cl.setSubmissionDelay(submissionDelay);
+                cl.setDeadline(deadline);
+
+                cloudletList.add(cl);
+                frameTotalSec += execTimeSec;
+            }
+
+            /* --- 4. Keep statistics if you want to log the drift ------------- */
+            double avg = frameTotalSec / cloudletsThisFrame;
+            System.out.printf("Frame %2d → avg exec %.2fs, %d cloudlets (mean drift now %.2fs)%n",
+                    frame, avg, cloudletsThisFrame, currentMeanSec);
+        }
+
+        cloudletList.sort(Comparator.comparingDouble(Cloudlet::getSubmissionDelay));
+        return cloudletList;
+    }
+
 
     protected List<DeadlineCloudlet> copyCloudlets(List<DeadlineCloudlet> cloudletList) {
         List<DeadlineCloudlet> cloudletClone = new ArrayList<>(cloudletList.size());

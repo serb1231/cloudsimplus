@@ -19,6 +19,13 @@ import org.cloudsimplus.power.models.PowerModelHostAbstract;
  */
 public class PowerModelPStateProcessor extends PowerModelHostAbstract {
 
+    public double getStaticPower() {
+        if (getHost() == null)
+            throw new IllegalStateException("Host is not set for this PowerModelPStateProcessor");
+
+        return states[currentStateIdx].powerConsumption;
+    }
+
     /* ------------------------------------------------------------------ */
     public record PerformanceState(double powerConsumption, double processingFraction) { }
     /* ------------------------------------------------------------------ */
@@ -73,7 +80,7 @@ public class PowerModelPStateProcessor extends PowerModelHostAbstract {
         if (util < 0 || util > 1)
             throw new IllegalArgumentException("Utilisation must be in [0,1]");
 
-        return states[0].powerConsumption + dynamicPart(util);
+        return states[currentStateIdx].powerConsumption + dynamicPower(util);
     }
 
     /** Called by CloudSim to obtain the split between static and dynamic power. */
@@ -84,21 +91,20 @@ public class PowerModelPStateProcessor extends PowerModelHostAbstract {
             return new PowerMeasurement();                   // switched off
 
         double usageFraction = host.getCpuMipsUtilization() / host.getTotalMipsCapacity();
-        return new PowerMeasurement(states[0].powerConsumption, dynamicPart(usageFraction));
+        return new PowerMeasurement(states[currentStateIdx].powerConsumption, dynamicPower(usageFraction));
     }
 
-    private double dynamicPart(final double util) {
+    private double dynamicPower(final double util) {
         // current state
         PerformanceState currentState = states[currentStateIdx];
         // check if there is a higher state
         if (currentStateIdx <= states.length - 1) {
             // return (static power) + (current state power) + (next state power - current state power) * (util)
-            return currentState.powerConsumption + (
-                    (states[currentStateIdx + 1].powerConsumption - currentState.powerConsumption) * util);
+            return (states[currentStateIdx + 1].powerConsumption - currentState.powerConsumption) * util;
         }
         else {
             // return current state power
-            return currentState.powerConsumption;
+            return 0;
         }
     }
 }

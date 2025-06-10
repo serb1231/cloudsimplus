@@ -22,14 +22,13 @@ import static java.util.Comparator.comparingLong;
 
 public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
-    protected final int numAnts = 100; // Number of ants
+    protected final int numAnts = 10; // Number of ants
     protected final double evaporationRate = 0.2; // Pheromone evaporation rate
     protected final double MIN_PHEROMONE_LEVEL = 0.8;
-    protected int TOTAL_CLOUDLETS = CLOUDLETS * TOTAL_FRAMES;
+    protected int TOTAL_CLOUDLETS = CLOUDLETS_PER_FRAME * TOTAL_FRAMES;
     protected final double MAX_PHEROMONE_LEVEL = 10.0; // Maximum pheromone level
 
-    protected final int iterations = 100; // Number of iterations for the algorithm
-    protected final double Q = 1000.0; // Pheromone deposit constant
+    protected final int iterations = 50; // Number of iterations for the algorithm
 
     public static void main(String[] args) {
         Log.setLevel(Level.OFF);
@@ -38,17 +37,49 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
     public ACOAlgorithm() {
 
+        vmList = createVms();
+        cloudletList = createCloudlets();
+        algorithmACO();
+
+        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
+        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();
+        final Comparator<DeadlineCloudlet> hostComparator = comparingLong(cl -> cl.getVm().getHost().getId());
+        cloudletFinishedList.sort(hostComparator.thenComparing(cl -> cl.getVm().getId()));
+
+        new CloudletsTableBuilder(cloudletFinishedList).build();
+        printHostsCpuUtilizationAndPowerConsumption();
+        printVmsCpuUtilizationAndPowerConsumption();
+
+        double makespan = cloudletFinishedList.stream()
+                .mapToDouble(Cloudlet::getFinishTime)
+                .max()
+                .orElse(0.0);
+
+        System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespan);
+
+//        printSLAViolations(broker0.getCloudletFinishedList());
+
+    }
+
+    @Override
+    public AlgorithmResult run(RelevantDataForAlgorithms input) {
+        copyGivenDataLocally(input);
+
+        algorithmACO();
+
+        return new AlgorithmResult(getName(),
+                cloudletList,
+                hostList,
+                vmList,
+                broker0.getCloudletFinishedList());
+    }
+
+    private void  algorithmACO() {
+
         simulation = new CloudSimPlus();
         hostList = new ArrayList<>(HOSTS);
         Datacenter datacenter0 = createDatacenter(simulation, hostList);
         broker0 = new DatacenterBrokerSimple(simulation);
-        vmList = createVms();
-        cloudletList = createCloudlets();
-
-        // set all the VMs to use the CloudletSchedulerSpaceShared scheduler
-        for (Vm vm : vmList) {
-            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
-        }
 
         double[][] pheromoneMatrix = initializePheromoneMatrix();
 
@@ -94,130 +125,25 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
         }
 
 
-//        System.out.println("\n\n\n\n\nBest Ant found after " + iterations + " iterations with fitness: ");
-
         // submit all the Vm's to the broker
         broker0.submitVmList(vmList);
         // send a normal new ant to create the allocation
         Ant ant = new Ant();
         for (DeadlineCloudlet cl : cloudletList) {
-
             Vm selectedVm = selectVmBasedOnPheromone(cl, vmList, pheromoneMatrix, cloudletList);
-            // print the cloudlet and vm allocation
-//             System.out.printf("Binding DeadlineCloudlet %d to Vm %d%n\n\n", cl.getId(), selectedVm.getId());
             cl.setVm(selectedVm);
             ant.assign(cl, selectedVm);
             broker0.submitCloudlet(cl);
         }
 
         broker0.submitVmList(vmList);
-        broker0.submitCloudletList(cloudletList);
 
         simulation.start();
-//
-//        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
-//        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();
-//        final Comparator<DeadlineCloudlet> hostComparator = comparingLong(cl -> cl.getVm().getHost().getId());
-//        cloudletFinishedList.sort(hostComparator.thenComparing(cl -> cl.getVm().getId()));
-//
-//        new CloudletsTableBuilder(cloudletFinishedList).build();
-//        printHostsCpuUtilizationAndPowerConsumption();
-//        printVmsCpuUtilizationAndPowerConsumption();
-//
-//        double makespan = cloudletFinishedList.stream()
-//                .mapToDouble(Cloudlet::getFinishTime)
-//                .max()
-//                .orElse(0.0);
-//
-//        System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespan);
-//
-//        printSLAViolations(broker0.getCloudletFinishedList());
-
-    }
-
-    protected Datacenter createDatacenter(CloudSimPlus simulation, List<Host> hostList) {
-        for (int i = 0; i < HOSTS; i++) {
-            final var host = createPowerHost(i);
-            hostList.add(host);
-        }
-
-        final var dc = new DatacenterSimple(simulation, hostList);
-        dc.setSchedulingInterval(SCHEDULING_INTERVAL);
-        return dc;
-    }
-
-    protected double[][] initializePheromoneMatrix() {
-        double[][] pheromoneMatrix = new double[cloudletList.size()][vmList.size()];
-        for (int i = 0; i < cloudletList.size(); i++) {
-            for (int j = 0; j < vmList.size(); j++) {
-                pheromoneMatrix[i][j] = 1.0; // Initialize pheromones uniformly
-            }
-        }
-        return pheromoneMatrix;
-    }
-
-    protected List<Ant> createAnts() {
-        List<Ant> ants = new ArrayList<>();
-
-        for (int i = 0; i < numAnts; i++) {
-            Ant ant = new Ant();
-            ants.add(ant);
-        }
-
-        return ants;
-    }
-
-    protected void evaporatePheromones(double[][] pheromoneMatrix) {
-        for (int i = 0; i < pheromoneMatrix.length; i++) {
-            for (int j = 0; j < pheromoneMatrix[i].length; j++) {
-                pheromoneMatrix[i][j] *= (1 - evaporationRate); // Evaporate pheromone
-                // Ensure pheromone levels do not go below a minimum threshold
-                if (pheromoneMatrix[i][j] < MIN_PHEROMONE_LEVEL) {
-                    pheromoneMatrix[i][j] = MIN_PHEROMONE_LEVEL; // Minimum pheromone level
-                }
-            }
-        }
-    }
-
-    // higher is better
-    protected double evaluateAnt(List<Cloudlet> finished, DatacenterBroker broker) {
-
-        int violations = 0;
-        double makespan = 0.0;
-
-        for (Cloudlet cl : finished) {
-            makespan = Math.max(makespan, cl.getFinishTime());
-
-            if (cl instanceof DeadlineCloudlet dc &&
-                    dc.getFinishTime() > dc.getDeadline()) {
-                violations++;
-            }
-        }
-
-        return (double) 1 / (1 + violations) + 0.01 * (((double) (CLOUDLET_LENGTH_MAX * (TOTAL_CLOUDLETS)) / 1000) / makespan); // Fitness function
-    }
-
-    protected int numberOfViolations(List<DeadlineCloudlet> cloudlets, DatacenterBroker broker) {
-        int violations = 0;
-
-        for (Cloudlet cl : broker.getCloudletFinishedList()) {
-            if (cl instanceof DeadlineCloudlet dc) {
-                double finish = dc.getFinishTime();
-                double deadline = dc.getDeadline();
-                boolean metDeadline = finish <= deadline;
-
-                if (!metDeadline) violations++;
-            }
-        }
-
-        return violations; // Lower fitness for fewer violations
     }
 
     public Vm selectVmBasedOnPheromone(DeadlineCloudlet cloudlet, List<Vm> vmList, double[][] pheromoneMatrix, List<DeadlineCloudlet> cloudletList) {
-//        System.out.println("Selecting VM for cloudlet: " + cloudlet.getId());
 
         // create a pheromone matrix copy
-        // to avoid modifying the original pheromone matrix
         double[][] pheromoneMatrixCopy = new double[pheromoneMatrix.length][pheromoneMatrix[0].length];
         for (int i = 0; i < pheromoneMatrix.length; i++) {
             System.arraycopy(pheromoneMatrix[i], 0, pheromoneMatrixCopy[i], 0, pheromoneMatrix[i].length);
@@ -237,19 +163,8 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
                     assignedCloudlets.add(cl);
                 }
             }
-
             // make the sum of the execution times for all the cloudlets assigned to this VM
-            double lastFinishTime = 0.0;
-            for (DeadlineCloudlet cl : assignedCloudlets) {
-                if (lastFinishTime > cl.getSubmissionDelay())
-                    lastFinishTime += cl.getLength() / vm.getMips();
-                else
-                    lastFinishTime = cl.getSubmissionDelay()+ cl.getLength() / vm.getMips();
-                // print the cloudlet and the new last finish time and the cloudlet submission delay, and the cl.getLength() / vm.getMips()
-//                System.out.printf("Cloudlet %d with submission delay %.2f seconds, and time it takes %.2f assigned to VM %d, new last finish time: %.2f seconds%n",
-//                        cl.getId(), cl.getSubmissionDelay(), cl.getLength() / vm.getMips(),vm.getId(), lastFinishTime);
-            }
-
+            double lastFinishTime = getLastFinishTime(vm, assignedCloudlets);
 
             lastFinishTimes[(int) vm.getId()] = lastFinishTime;
             // print the last finish time for each VM
@@ -302,86 +217,39 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
         return vmList.get(vmList.size() - 1);
     }
 
-    @Override
-    public AlgorithmResult run(RelevantDataForAlgorithms input) {
-        copyGivenDataLocally(input);
-
-        simulation = new CloudSimPlus();
-        hostList = new ArrayList<>(HOSTS);
-        Datacenter datacenter0 = createDatacenter(simulation, hostList);
-        broker0 = new DatacenterBrokerSimple(simulation);
-
-        // set all the VMs to use the CloudletSchedulerSpaceShared scheduler
-        for (Vm vm : vmList) {
-            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
+    private static double getLastFinishTime(Vm vm, List<DeadlineCloudlet> assignedCloudlets) {
+        double lastFinishTime = 0.0;
+        for (DeadlineCloudlet cl : assignedCloudlets) {
+            if (lastFinishTime > cl.getSubmissionDelay())
+                lastFinishTime += cl.getLength() / vm.getMips();
+            else
+                lastFinishTime = cl.getSubmissionDelay()+ cl.getLength() / vm.getMips();
         }
-
-        double[][] pheromoneMatrix = initializePheromoneMatrix();
-
-        for (int iter = 0; iter < iterations; iter++) {
-            List<Ant> ants;
-            ants = createAnts();
-            for (Ant ant : ants) {
-                CloudSimPlus sim = new CloudSimPlus();
-                List<Host> hostlst = new ArrayList<>(HOSTS);
-
-                Datacenter dc = createDatacenter(sim, hostlst);
-                DatacenterBroker broker = new DatacenterBrokerSimple(sim);
-
-                List<Vm> vmClone = copyVMs(vmList);
-                List<DeadlineCloudlet> cloudletClone = copyCloudlets(cloudletList);
-
-                broker.submitVmList(vmClone);
-
-                for (DeadlineCloudlet cl : cloudletClone) {
-                    Vm selectedVm = selectVmBasedOnPheromone(cl, vmClone, pheromoneMatrix, cloudletClone);
-                    cl.setVm(selectedVm);
-                    ant.assign(cl, selectedVm);
-                    broker.submitCloudlet(cl);
-                }
-
-                sim.start();
-
-                // Evaluate performance
-                double fitness = evaluateAnt(broker.getCloudletFinishedList(), broker);
-                ant.setFitness(fitness);
-                ant.setNumberViolations(numberOfViolations(cloudletClone, broker));
-                ant.setCloudletsFinished(broker.getCloudletFinishedList());
-            }
-            // evaporate pheromones
-            evaporatePheromones(pheromoneMatrix);
-
-            Ant bestAnt = ants.stream()
-                    .max(Comparator.comparingDouble(Ant::getFitness))
-                    .orElseThrow();
-
-            // updat pheromones based on the best ant's allocation
-            updatePheromones(bestAnt, pheromoneMatrix);
-        }
-
-
-        // submit all the Vm's to the broker
-        broker0.submitVmList(vmList);
-        // send a normal new ant to create the allocation
-        Ant ant = new Ant();
-        for (DeadlineCloudlet cl : cloudletList) {
-            Vm selectedVm = selectVmBasedOnPheromone(cl, vmList, pheromoneMatrix, cloudletList);
-            cl.setVm(selectedVm);
-            ant.assign(cl, selectedVm);
-            broker0.submitCloudlet(cl);
-        }
-
-        broker0.submitVmList(vmList);
-        broker0.submitCloudletList(cloudletList);
-
-        simulation.start();
-
-        return new AlgorithmResult(getName(),
-                cloudletList,
-                hostList,
-                vmList,
-                broker0.getCloudletFinishedList());
+        return lastFinishTime;
     }
+
+    protected double[][] initializePheromoneMatrix() {
+        double[][] pheromoneMatrix = new double[cloudletList.size()][vmList.size()];
+        for (int i = 0; i < cloudletList.size(); i++) {
+            for (int j = 0; j < vmList.size(); j++) {
+                pheromoneMatrix[i][j] = 1.0; // Initialize pheromones uniformly
+            }
+        }
+        return pheromoneMatrix;
+    }
+
+    protected void evaporatePheromones(double[][] pheromoneMatrix) {
+        for (int i = 0; i < pheromoneMatrix.length; i++) {
+            for (int j = 0; j < pheromoneMatrix[i].length; j++) {
+                pheromoneMatrix[i][j] *= (1 - evaporationRate); // Evaporate pheromone
+                // Ensure pheromone levels do not go below a minimum threshold
+                if (pheromoneMatrix[i][j] < MIN_PHEROMONE_LEVEL) {
+                    pheromoneMatrix[i][j] = MIN_PHEROMONE_LEVEL; // Minimum pheromone level
+                }
+            }
+        }
+    }
+
     protected void updatePheromones(Ant bestAnt, double[][] pheromoneMatrix) {
 
         for (Map.Entry<DeadlineCloudlet, Vm> entry : bestAnt.getAllocation().entrySet()) {
@@ -397,6 +265,51 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
         }
     }
 
+    protected List<Ant> createAnts() {
+        List<Ant> ants = new ArrayList<>();
+
+        for (int i = 0; i < numAnts; i++) {
+            Ant ant = new Ant();
+            ants.add(ant);
+        }
+
+        return ants;
+    }
+
+    // higher is better. After the ant sends the jobs, and the simulation is done, we evaluate the ant's performance
+    // based on the number of SLA violations and the makespan.
+    protected double evaluateAnt(List<Cloudlet> finished, DatacenterBroker broker) {
+
+        int violations = 0;
+        double makespan = 0.0;
+
+        for (Cloudlet cl : finished) {
+            makespan = Math.max(makespan, cl.getFinishTime());
+
+            if (cl instanceof DeadlineCloudlet dc &&
+                    dc.getFinishTime() > dc.getDeadline()) {
+                violations++;
+            }
+        }
+
+        return (double) 1 / (1 + violations) + 0.01 * (((double) (CLOUDLET_LENGTH_MAX * (TOTAL_CLOUDLETS)) / 1000) / makespan); // Fitness function
+    }
+
+    protected int numberOfViolations(List<DeadlineCloudlet> cloudlets, DatacenterBroker broker) {
+        int violations = 0;
+
+        for (Cloudlet cl : broker.getCloudletFinishedList()) {
+            if (cl instanceof DeadlineCloudlet dc) {
+                double finish = dc.getFinishTime();
+                double deadline = dc.getDeadline();
+                boolean metDeadline = finish <= deadline;
+
+                if (!metDeadline) violations++;
+            }
+        }
+
+        return violations; // Lower fitness for fewer violations
+    }
 }
 
 

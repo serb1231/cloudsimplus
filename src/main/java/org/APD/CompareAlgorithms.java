@@ -6,13 +6,10 @@ import org.APD.Algorithms.*;
 import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.hosts.Host;
 import org.cloudsimplus.power.models.PowerModelHostSimple;
-import org.cloudsimplus.schedulers.cloudlet.CloudletSchedulerSpaceShared;
 import org.cloudsimplus.vms.Vm;
 import org.cloudsimplus.vms.VmResourceStats;
-import org.cloudsimplus.vms.VmSimple;
 import org.cloudsimplus.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Comparator.comparingLong;
@@ -94,7 +91,7 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
                 HOST_SHUT_DOWN_POWER,
                 VMS,
                 VM_PES,
-                CLOUDLETS,
+                CLOUDLETS_PER_FRAME,
                 CLOUDLET_PES,
                 CLOUDLET_LENGTH_MIN,
                 CLOUDLET_LENGTH_MAX,
