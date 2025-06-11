@@ -98,7 +98,7 @@ public class PowerModelPStateProcessor extends PowerModelHostAbstract {
         // current state
         PerformanceState currentState = states[currentStateIdx];
         // check if there is a higher state
-        if (currentStateIdx <= states.length - 1) {
+        if (currentStateIdx <= states.length - 2) {
             // return (static power) + (current state power) + (next state power - current state power) * (util)
             return (states[currentStateIdx + 1].powerConsumption - currentState.powerConsumption) * util;
         }

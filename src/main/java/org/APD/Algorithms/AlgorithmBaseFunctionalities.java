@@ -52,7 +52,7 @@ public class AlgorithmBaseFunctionalities {
     protected int VMS = 3;
     protected int VM_PES = 1;
 
-    protected int CLOUDLETS_PER_FRAME = 8;
+    protected int CLOUDLETS_PER_FRAME = 5;
     protected int CLOUDLET_PES = 1;
     protected int CLOUDLET_LENGTH_MIN = 1000;
     protected int CLOUDLET_LENGTH_MAX = 5000;
@@ -74,10 +74,14 @@ public class AlgorithmBaseFunctionalities {
     protected List<Vm> vmList;
     protected List<Host> hostList;
 
-    int TOTAL_FRAMES = 30; // how long you want the simulation to run in 10s chunks
-    int MIPS_PER_VM = 500; // Adjust this to your VM's actual MIPS capacity
-    int MIPS_PER_HOST = 500; // Adjust this to your Host's actual MIPS capacity
-    int MIPS_PER_CLOUDLET_COMPLETION = 10000;
+    int TOTAL_FRAMES = 3; // how long you want the simulation to run in 10s chunks
+    protected static int MIPS_PER_VM = 1000; // Adjust this to your VM's actual MIPS capacity
+    protected static int MIPS_PER_HOST = 1000; // Adjust this to your Host's actual MIPS capacity
+
+    protected static int MIPS_PER_VM_INITIAL = 1000; // Adjust this to your VM's actual MIPS capacity
+    protected static int MIPS_PER_HOST_INITIAL = 1000; // Adjust this to your Host's actual MIPS capacity
+    double MIPS_PER_CLOUDLET_COMPLETION_ORDER_OF_10 = Math.log10(CLOUDLET_LENGTH_MIN);
+    protected static int POWER_STATE = 0;
 
     protected int TOTAL_CLOUDLETS = CLOUDLETS_PER_FRAME * TOTAL_FRAMES;
 
@@ -204,7 +208,7 @@ public class AlgorithmBaseFunctionalities {
         host.setStartupDelay(HOST_START_UP_DELAY)
                 .setShutDownDelay(HOST_SHUT_DOWN_DELAY);
 
-        final var powerModel = new PowerModelPstateProcessor_2GHz_Via_C7_M(0);
+        final var powerModel = new PowerModelPstateProcessor_2GHz_Via_C7_M(POWER_STATE);
         powerModel
                 .setStartupPower(HOST_START_UP_POWER)
                 .setShutDownPower(HOST_SHUT_DOWN_POWER);
@@ -246,7 +250,8 @@ public class AlgorithmBaseFunctionalities {
 
             for (int i = 0; i < cloudletsThisFrame; i++) {
                 double execTimeSec = 1.0 + random.nextDouble() * 2.0; // 1–5s
-                long length = (long) (execTimeSec * MIPS_PER_CLOUDLET_COMPLETION); // length = time × MIPS
+//                long length = (long) (execTimeSec * MIPS_PER_CLOUDLET_COMPLETION); // length = time × MIPS
+                long length = (long) Math.min(CLOUDLET_LENGTH_MIN + random.nextDouble() * CLOUDLET_LENGTH_MAX, CLOUDLET_LENGTH_MAX);
 
                 double submissionDelay = frameStartTime + random.nextDouble() * 10;
                 double deadline = submissionDelay + execTimeSec * 10 + 5.0; // 1s margin
@@ -334,5 +339,25 @@ public class AlgorithmBaseFunctionalities {
 
         System.out.printf("Total SLA violations: %d out of %d cloudlets (%.2f%%)%n",
                 violations, total, violations * 100.0 / total);
+    }
+
+    protected boolean wereSLAViolations(List<DeadlineCloudlet> cloudletListFinished) {
+
+        int violations = 0;
+        int total = 0;
+
+        for (Cloudlet cl : cloudletListFinished) {
+            if (cl instanceof DeadlineCloudlet dc) {
+                total++;
+                double finish = dc.getFinishTime();
+                double deadline = dc.getDeadline();
+                boolean metDeadline = finish <= deadline;
+                double executionRequirement = cl.getLength() / cl.getVm().getMips();
+                double arrivalTime = dc.getSubmissionDelay();
+
+                if (!metDeadline) return true;
+            }
+        }
+        return false;
     }
 }
