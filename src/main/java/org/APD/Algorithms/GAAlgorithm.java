@@ -2,32 +2,24 @@ package org.APD.Algorithms;
 /*  ──────────────────────────────────────────────────────────────────────
     GAAlgorithm.java   –  Genetic-Algorithm replacement for ACOAlgorithm
     ----------------------------------------------------------------------
-    Copyright 2025 Your-Name-Here
+    Copyright 2025 Ionescu Serban-Mihai
    ────────────────────────────────────────────────────────────────────── */
 
 import ch.qos.logback.classic.Level;
 import org.APD.AlgorithmResult;
 import org.APD.RelevantDataForAlgorithms;
 import org.APD.DeadlineCloudlet;
-import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
-import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
-import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
-import org.cloudsimplus.datacenters.DatacenterSimple;
-import org.cloudsimplus.hosts.Host;
 import org.cloudsimplus.util.Log;
 import org.cloudsimplus.vms.Vm;
 
 import java.util.*;
 
-        import static java.util.Comparator.comparingDouble;
-import static java.util.Comparator.comparingLong;
-
 public class GAAlgorithm extends BaseSchedulingAlgorithm {
 
-    /* GA hyper-parameters (tweak as you like) */
+    /* GA hyperparameters (tweak as you like) */
     private static final int POP_SIZE       = 30;     // individuals
     private static final int MAX_GENERATION = 50;     // iterations
     private static final double CROSSOVER_P = 0.9;    // probability
@@ -59,24 +51,24 @@ public class GAAlgorithm extends BaseSchedulingAlgorithm {
 
         algorithmGA();
 
-
-        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
-        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();
-        final Comparator<DeadlineCloudlet> hostComparator = comparingLong(cl -> cl.getVm().getHost().getId());
-        cloudletFinishedList.sort(hostComparator.thenComparing(cl -> cl.getVm().getId()));
-
-        new CloudletsTableBuilder(cloudletFinishedList).build();
-        printHostsCpuUtilizationAndPowerConsumption();
-        printVmsCpuUtilizationAndPowerConsumption();
-
-        double makespan = cloudletFinishedList.stream()
-                .mapToDouble(Cloudlet::getFinishTime)
-                .max()
-                .orElse(0.0);
-
-        System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespan);
-
-        printSLAViolations(broker0.getCloudletFinishedList());
+//
+//        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
+//        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();
+//        final Comparator<DeadlineCloudlet> hostComparator = comparingLong(cl -> cl.getVm().getHost().getId());
+//        cloudletFinishedList.sort(hostComparator.thenComparing(cl -> cl.getVm().getId()));
+//
+//        new CloudletsTableBuilder(cloudletFinishedList).build();
+//        printHostsCpuUtilizationAndPowerConsumption();
+//        printVmsCpuUtilizationAndPowerConsumption();
+//
+//        double makespan = cloudletFinishedList.stream()
+//                .mapToDouble(Cloudlet::getFinishTime)
+//                .max()
+//                .orElse(0.0);
+//
+//        System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespan);
+//
+//        printSLAViolations(broker0.getCloudletFinishedList());
     }
 
 
@@ -100,13 +92,14 @@ public class GAAlgorithm extends BaseSchedulingAlgorithm {
 
         /* ---------- 2. Evolution loop ------------------------------------------- */
         int[] bestChrom = null;
-        double bestFitness = Double.POSITIVE_INFINITY;
+        double bestFitness = Double.NEGATIVE_INFINITY;
 
         for (int gen = 0; gen < MAX_GENERATION; gen++) {
 
-            /* evaluate and rank */
-            population.sort(comparingDouble(this::fitness));
-            if (fitness(population.get(0)) < bestFitness) {
+            /* evaluate and rank (largest fitness first) */
+            population.sort((c1, c2) -> Double.compare(fitness(c2), fitness(c1)));
+
+            if (fitness(population.get(0)) > bestFitness) {          //  ↑ flipped sign
                 bestFitness = fitness(population.get(0));
                 bestChrom   = population.get(0).clone();
             }
@@ -143,27 +136,16 @@ public class GAAlgorithm extends BaseSchedulingAlgorithm {
 
         /* ---------- 3. Build and run CloudSim using best chromosome ------------- */
 
-        List<Vm>        vms       = copyVMs(vmList);
-        List<DeadlineCloudlet> cls = copyCloudlets(cloudletList);
+        broker0.submitVmList(vmList);
 
-        broker0.submitVmList(vms);
-
-        for (int i = 0; i < cls.size(); i++) {
-            Vm chosenVm = vms.get(bestChrom[i]);
-            cls.get(i).setVm(chosenVm);
-            broker0.submitCloudlet(cls.get(i));
+        for (int i = 0; i < cloudletList.size(); i++) {
+            assert bestChrom != null;
+            Vm chosenVm = vmList.get(bestChrom[i]);
+            cloudletList.get(i).setVm(chosenVm);
+            broker0.submitCloudlet(cloudletList.get(i));
         }
 
         simulation.start();
-
-        /* optional: show result table */
-        new CloudletsTableBuilder(broker0.getCloudletFinishedList()).build();
-
-//        double makespan = broker0.getCloudletFinishedList()
-//                .stream()
-//                .mapToDouble(Cloudlet::getFinishTime)
-//                .max()
-//                .orElse(0);
 
     }
 
@@ -178,32 +160,41 @@ public class GAAlgorithm extends BaseSchedulingAlgorithm {
         return genes;
     }
 
-    /* minimises makespan – smaller is better */
+    /* minimises makespan – bigger is better */
     private double fitness(int[] chromosome) {
-        Map<Integer, List<DeadlineCloudlet>> vmQueues = new HashMap<>();
-        for (int i = 0; i < chromosome.length; i++)
-            vmQueues.computeIfAbsent(chromosome[i], k -> new ArrayList<>())
-                    .add(dummyCloudlet(i));            // lightweight proxy
+        // iterate through the cloudlets
+        double[] finishTimes = new double[vmList.size()];
+        int nrOfViolations = 0;
 
-        /* rough estimate: each Cloudlet has execTimeSec in its length → finish time = sum */
-        double worst = 0;
-        for (List<DeadlineCloudlet> q : vmQueues.values()) {
-            double sum = q.stream().mapToDouble(cl -> cl.getLength()).sum();
-            worst = Math.max(worst, sum);
+        for (int i = 0; i < chromosome.length; i++) {
+            DeadlineCloudlet currentCloudlet = cloudletList.get(i);
+            Vm currentVm = vmList.get(chromosome[i]);
+            if (finishTimes[chromosome[i]] > currentCloudlet.getSubmissionDelay()) {
+                // if the cloudlet is submitted after the VM is already busy, we need to wait
+                finishTimes[chromosome[i]] += currentCloudlet.getLength() / currentVm.getMips();
+            } else {
+                finishTimes[chromosome[i]] = currentCloudlet.getSubmissionDelay() + currentCloudlet.getLength() / currentVm.getMips();
+            }
+
+            if (finishTimes[chromosome[i]] > currentCloudlet.getDeadline()) {
+                    // if the cloudlet is finished after the deadline, we count it as a violation
+                    nrOfViolations++;
+            }
         }
-        return worst;
-    }
+        // get the VM with the maximum finish time
+        double makespan = Arrays.stream(finishTimes).max().orElse(0.0);
 
-    /* very small helper so we don’t touch real objects during evaluation */
-    private DeadlineCloudlet dummyCloudlet(int id) {
-        // cloudlet length / MIPS is already reflected
-        return new DeadlineCloudlet(id, 0, 1);   // length 0 – we only use .getLength()
+        return (double) 1 / (1 + nrOfViolations) + 0.01 * (((double) (CLOUDLET_LENGTH_MAX * (TOTAL_CLOUDLETS)) / 1000) / makespan); // Fitness function
+
     }
 
     private int[] tournamentSelect(List<int[]> pop) {
         int a = rng.nextInt(pop.size());
         int b = rng.nextInt(pop.size());
-        return (fitness(pop.get(a)) < fitness(pop.get(b))) ? pop.get(a) : pop.get(b);
+        /* pick the one with the *larger* fitness now */
+        return fitness(pop.get(a)) > fitness(pop.get(b))
+                ? pop.get(a)
+                : pop.get(b);
     }
 
     private void mutate(int[] genes, int vmCount) {
@@ -212,3 +203,5 @@ public class GAAlgorithm extends BaseSchedulingAlgorithm {
                 genes[i] = rng.nextInt(vmCount);
     }
 }
+
+

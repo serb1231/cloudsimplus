@@ -30,52 +30,57 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
         SchedulingAlgorithm fcfs = new FCFSAlgorithm_bin();
         SchedulingAlgorithm roundRobin = new RoundRobinAlgorithm();
         SchedulingAlgorithm powerAware = new ACOAlgorithm();
+        SchedulingAlgorithm gaAlgorithm = new GAAlgorithm();
 
         AlgorithmResult resultFCFS = fcfs.run(createRelevantDataForAlgorithms(vmList, cloudletList));
         AlgorithmResult resultRoundRobin = roundRobin.run(createRelevantDataForAlgorithms(vmList, cloudletList));
         AlgorithmResult resultACO = powerAware.run(createRelevantDataForAlgorithms(vmList, cloudletList));
+        AlgorithmResult resultGA = gaAlgorithm.run(createRelevantDataForAlgorithms(vmList, cloudletList));
 
 
         System.out.println("\n\n\n----------------------------------------FCFS Algorithm Result:-----------------------------------------\n\n\n");
         printVmsCpuUtilizationAndPowerConsumption(resultFCFS.vms());
         printHostsCpuUtilizationAndPowerConsumption(resultFCFS.hosts());
-
         double makespan = resultFCFS.cloudletFinishedList().stream()
                 .mapToDouble(Cloudlet::getFinishTime)
                 .max()
                 .orElse(0.0);
-
         System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespan);
-
         // Print the SLA violations
-        printSLAViolations(resultFCFS.cloudletFinishedList());
+        // printSLAViolations(resultFCFS.cloudletFinishedList());
 
         System.out.println("\n\n\n----------------------------------------Round Robin Algorithm Result:-----------------------------------------\n\n\n");
         printVmsCpuUtilizationAndPowerConsumption(resultRoundRobin.vms());
         printHostsCpuUtilizationAndPowerConsumption(resultRoundRobin.hosts());
-
         double makespanRoundRobin = resultRoundRobin.cloudletFinishedList().stream()
                 .mapToDouble(Cloudlet::getFinishTime)
                 .max()
                 .orElse(0.0);
-
         System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespanRoundRobin);
-
         // Print the SLA violations
-        printSLAViolations(resultRoundRobin.cloudletFinishedList());
+        // printSLAViolations(resultRoundRobin.cloudletFinishedList());
 
         System.out.println("\n\n\n----------------------------------------ACO Algorithm Result:-----------------------------------------\n\n\n");
         printVmsCpuUtilizationAndPowerConsumption(resultACO.vms());
         printHostsCpuUtilizationAndPowerConsumption(resultACO.hosts());
-
         double makespanACO = resultACO.cloudletFinishedList().stream()
                 .mapToDouble(Cloudlet::getFinishTime)
                 .max()
                 .orElse(0.0);
         System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespanACO);
-
         // Print the SLA violations
-        printSLAViolations(resultACO.cloudletFinishedList());
+        // printSLAViolations(resultACO.cloudletFinishedList());
+//
+        System.out.println("\n\n\n----------------------------------------GA Algorithm Result:-----------------------------------------\n\n\n");
+        printVmsCpuUtilizationAndPowerConsumption(resultGA.vms());
+        printHostsCpuUtilizationAndPowerConsumption(resultGA.hosts());
+        double makespanGA = resultGA.cloudletFinishedList().stream()
+                .mapToDouble(Cloudlet::getFinishTime)
+                .max()
+                .orElse(0.0);
+        System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespanGA);
+        // Print the SLA violations
+        // printSLAViolations(resultGA.cloudletFinishedList());
     }
 
     RelevantDataForAlgorithms createRelevantDataForAlgorithms(List<Vm> vmList, List<DeadlineCloudlet> cloudletList) {
@@ -100,30 +105,5 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
                 vmListClone,
                 cloudletListClone
         );
-    }
-
-    protected void printVmsCpuUtilizationAndPowerConsumption(List<Vm> vmList) {
-        vmList.sort(comparingLong(vm -> vm.getHost().getId()));
-        for (Vm vm : vmList) {
-            final var powerModel = vm.getHost().getPowerModel();
-            final double hostStaticPower = powerModel instanceof PowerModelHostSimple powerModelHost ? powerModelHost.getStaticPower() : 0;
-            final double hostStaticPowerByVm = hostStaticPower / vm.getHost().getVmCreatedList().size();
-
-            //VM CPU utilization relative to the host capacity
-            final double vmRelativeCpuUtilization = vm.getCpuUtilizationStats().getMean() / vm.getHost().getVmCreatedList().size();
-            final double vmPower = powerModel.getPower(vmRelativeCpuUtilization) - hostStaticPower + hostStaticPowerByVm; // W
-            final VmResourceStats cpuStats = vm.getCpuUtilizationStats();
-            System.out.printf(
-                    "Vm   %2d CPU Usage Mean: %6.1f%% | Power Consumption Mean: %8.0f W%n",
-                    vm.getId(), cpuStats.getMean() * 100, vmPower);
-        }
-    }
-
-    protected void printHostsCpuUtilizationAndPowerConsumption(List<Host> hostList) {
-        System.out.println();
-        for (final Host host : hostList) {
-            printHostCpuUtilizationAndPowerConsumption(host);
-        }
-        System.out.println();
     }
 }

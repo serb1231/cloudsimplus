@@ -9,8 +9,6 @@ import org.cloudsimplus.datacenters.Datacenter;
 import org.cloudsimplus.datacenters.DatacenterSimple;
 import org.cloudsimplus.hosts.Host;
 import org.cloudsimplus.hosts.HostSimple;
-//import org.cloudsimplus.power.models.PowerModel;
-import org.cloudsimplus.power.models.PowerModelHostSimple;
 import org.APD.PowerModels.PowerModelPstateProcessor_2GHz_Via_C7_M;
 import org.cloudsimplus.resources.Pe;
 import org.cloudsimplus.resources.PeSimple;
@@ -24,7 +22,6 @@ import org.cloudsimplus.vms.VmResourceStats;
 import org.cloudsimplus.vms.VmSimple;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -55,7 +52,7 @@ public class AlgorithmBaseFunctionalities {
     protected int VMS = 3;
     protected int VM_PES = 1;
 
-    protected int CLOUDLETS_PER_FRAME = 5;
+    protected int CLOUDLETS_PER_FRAME = 8;
     protected int CLOUDLET_PES = 1;
     protected int CLOUDLET_LENGTH_MIN = 1000;
     protected int CLOUDLET_LENGTH_MAX = 5000;
@@ -80,8 +77,9 @@ public class AlgorithmBaseFunctionalities {
     int TOTAL_FRAMES = 30; // how long you want the simulation to run in 10s chunks
     int MIPS_PER_VM = 500; // Adjust this to your VM's actual MIPS capacity
     int MIPS_PER_HOST = 500; // Adjust this to your Host's actual MIPS capacity
-    int MIPS_PER_CLOUDLET_COMPLETION = 16000;
+    int MIPS_PER_CLOUDLET_COMPLETION = 10000;
 
+    protected int TOTAL_CLOUDLETS = CLOUDLETS_PER_FRAME * TOTAL_FRAMES;
 
     /**
      * Prints the following information from VM's utilization stats:
@@ -93,14 +91,14 @@ public class AlgorithmBaseFunctionalities {
      * </ul>
      *
      * <p>A Host, even if idle, may consume a static amount of power.
-     * Lets say it consumes 20 W in idle state and that for each 1% of CPU use it consumes 1 W more.
+     * Let's say it consumes 20 W in idle state and that for each 1% of CPU use it consumes 1 W more.
      * For the 2 VMs of the example above, each one using 50% of CPU will consume 50 W.
      * That is 100 W for the 2 VMs, plus the 20 W that is static.
-     * Therefore we have a total Host power consumption of 120 W.
+     * Therefore, we have a total Host power consumption of 120 W.
      * </p>
      *
      * <p>
-     * If we computer the power consumption for a single VM by
+     * If we compute the power consumption for a single VM by
      * calling {@code vm.getHost().getPowerModel().getPower(hostCpuUsage)},
      * we get the 50 W consumed by the VM, plus the 20 W of static power.
      * This adds up to 70 W. If the two VMs are equal and using the same amount of CPU,
@@ -115,7 +113,7 @@ public class AlgorithmBaseFunctionalities {
      * is computed here, that detail is abstracted.
      * </p>
      */
-    protected void printVmsCpuUtilizationAndPowerConsumption() {
+    protected void printVmsCpuUtilizationAndPowerConsumption(List<Vm> vmList) {
         vmList.sort(comparingLong(vm -> vm.getHost().getId()));
         for (Vm vm : vmList) {
             //vm.getUtilizationHistory().enable(); // Enable utilization history if not already enabled
@@ -131,7 +129,10 @@ public class AlgorithmBaseFunctionalities {
             System.out.printf(
                     "Vm   %2d CPU Usage Mean: %6.1f%% | Power Consumption Mean: %8.0f W (Host Static Power: %.1f W, Host Static Power by VM: %.1f W, VM Relative CPU Utilization: %.2f)%n",
                     vm.getId(), cpuStats.getMean() * 100, vmPower, hostStaticPower, hostStaticPowerByVm, vmRelativeCpuUtilization);
+            // print vm.getHost().getVmCreatedList().size()
+            System.out.printf("Host %2d VMs: %d%n", vm.getHost().getId(), vm.getHost().getVmCreatedList().size());
         }
+
     }
 
     /**
@@ -139,7 +140,7 @@ public class AlgorithmBaseFunctionalities {
      * if VMs utilization history is enabled by calling
      * {@code vm.getUtilizationHistory().enable()}.
      */
-    protected void printHostsCpuUtilizationAndPowerConsumption() {
+    protected void printHostsCpuUtilizationAndPowerConsumption(List<Host> hostList) {
         System.out.println();
         for (final Host host : hostList) {
             printHostCpuUtilizationAndPowerConsumption(host);
@@ -243,8 +244,6 @@ public class AlgorithmBaseFunctionalities {
             double frameStartTime = frame * 10;
             int cloudletsThisFrame = CLOUDLETS_PER_FRAME - 2 + random.nextInt(5); // between 8 and 12 cloudlets
 
-            double totalExecTime = 0;
-
             for (int i = 0; i < cloudletsThisFrame; i++) {
                 double execTimeSec = 1.0 + random.nextDouble() * 2.0; // 1–5s
                 long length = (long) (execTimeSec * MIPS_PER_CLOUDLET_COMPLETION); // length = time × MIPS
@@ -264,85 +263,13 @@ public class AlgorithmBaseFunctionalities {
 
 
                 cloudletList.add(cloudlet);
-                totalExecTime += execTimeSec;
             }
         }
 
         // sort the cloudlets by submission delay
         cloudletList.sort(comparingDouble(Cloudlet::getSubmissionDelay));
-        // print the cloudlets, submission delay and deadline
-//        for (DeadlineCloudlet cloudlet : cloudletList) {
-//            System.out.printf("Cloudlet ID: %d, Submission Delay: %.2f, Deadline: %.2f, Exec Time: %.2f%n",
-//                    cloudlet.getId(), cloudlet.getSubmissionDelay(), cloudlet.getDeadline(), (double)cloudlet.getLength() / MIPS_PER_VM);
-//        }
         return cloudletList;
     }
-
-    /**
-     * Builds a workload in frames where the *average* job size
-     * can drift up or down ±TREND_FACTOR with probability TREND_PROB
-     * from one frame to the next.
-     */
-    protected List<DeadlineCloudlet> createCloudletsWithTrend() {
-        final List<DeadlineCloudlet> cloudletList = new ArrayList<>();
-        final UtilizationModelDynamic utilization = new UtilizationModelDynamic(0.002);
-        final Random rnd = new Random();
-
-        final double TREND_FACTOR  = 0.20;   // 20 % up or down
-        final double TREND_PROB    = 0.20;   // 20 % chance of a trend change
-        final double BASE_MEAN_SEC = 2.0;    // start-up mean exec-time (s)
-
-        double currentMeanSec = BASE_MEAN_SEC;  // mutable “moving mean”
-        int id = 0, pes = 1;
-
-        for (int frame = 0; frame < TOTAL_FRAMES; frame++) {
-
-            /* --- 1. Possibly shift the mean for this frame ------------------- */
-            if (rnd.nextDouble() < TREND_PROB) {                 // trend event?
-                double direction = rnd.nextBoolean() ? 1 : -1;   // up or down
-                currentMeanSec *= 1.0 + direction * TREND_FACTOR;
-                currentMeanSec = Math.max(0.2, currentMeanSec);  // keep sane
-            }
-
-            /* --- 2. Decide how many cloudlets this frame -------------------- */
-            int cloudletsThisFrame = CLOUDLETS_PER_FRAME - 2 + rnd.nextInt(5);  // 8–12
-            double frameStartTime  = frame * 10;
-
-            /* --- 3. Generate the cloudlets ---------------------------------- */
-            double frameTotalSec = 0;
-            for (int i = 0; i < cloudletsThisFrame; i++) {
-
-                // Jitter each job around the current mean (±50 %)
-                double execTimeSec = currentMeanSec * (0.5 + rnd.nextDouble()); // 0.5–1.5 × mean
-                long length        = (long) (execTimeSec * MIPS_PER_VM);
-
-                double submissionDelay = frameStartTime + rnd.nextDouble() * 10;
-                double deadline        = submissionDelay + execTimeSec * 10 + 5.0;
-
-                DeadlineCloudlet cl = (DeadlineCloudlet) new DeadlineCloudlet(id++, length, pes)
-                        .setFileSize(1024)
-                        .setOutputSize(1024)
-                        .setUtilizationModelCpu(new UtilizationModelFull())
-                        .setUtilizationModelRam(utilization)
-                        .setUtilizationModelBw(utilization);
-
-                cl.setSubmissionDelay(submissionDelay);
-                cl.setDeadline(deadline);
-
-                cloudletList.add(cl);
-                frameTotalSec += execTimeSec;
-            }
-
-            /* --- 4. Keep statistics if you want to log the drift ------------- */
-            double avg = frameTotalSec / cloudletsThisFrame;
-            System.out.printf("Frame %2d → avg exec %.2fs, %d cloudlets (mean drift now %.2fs)%n",
-                    frame, avg, cloudletsThisFrame, currentMeanSec);
-        }
-
-        cloudletList.sort(Comparator.comparingDouble(Cloudlet::getSubmissionDelay));
-        return cloudletList;
-    }
-
 
     protected List<DeadlineCloudlet> copyCloudlets(List<DeadlineCloudlet> cloudletList) {
         List<DeadlineCloudlet> cloudletClone = new ArrayList<>(cloudletList.size());
@@ -370,9 +297,9 @@ public class AlgorithmBaseFunctionalities {
         for (Vm vm : vmList) {
             Vm clonedVm = new VmSimple(vm.getMips(), vm.getPesNumber());
 
-            clonedVm.setRam((long) vm.getRam().getCapacity())
-                    .setBw((long) vm.getBw().getCapacity())
-                    .setSize((long) vm.getStorage().getCapacity())
+            clonedVm.setRam(vm.getRam().getCapacity())
+                    .setBw(vm.getBw().getCapacity())
+                    .setSize(vm.getStorage().getCapacity())
                     .setCloudletScheduler(new CloudletSchedulerSpaceShared());
 
             clonedVm.enableUtilizationStats(); // optional
@@ -395,9 +322,11 @@ public class AlgorithmBaseFunctionalities {
                 double finish = dc.getFinishTime();
                 double deadline = dc.getDeadline();
                 boolean metDeadline = finish <= deadline;
+                double executionRequirement = cl.getLength() / cl.getVm().getMips();
+                double arrivalTime = dc.getSubmissionDelay();
 
-                System.out.printf("Cloudlet %d: Finish Time = %.2f, Deadline = %.2f -> %s%n",
-                        dc.getId(), finish, deadline, metDeadline ? "OK" : "VIOLATED");
+                System.out.printf("Cloudlet %d: Finish Time = %.2f, Deadline = %.2f -> %s, Arrival Time: %.2f, Execution Requirement = %.2f%n",
+                        dc.getId(), finish, deadline, metDeadline ? "OK" : "VIOLATED", arrivalTime,executionRequirement);
 
                 if (!metDeadline) violations++;
             }
