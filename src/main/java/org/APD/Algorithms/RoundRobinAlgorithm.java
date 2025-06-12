@@ -5,7 +5,6 @@ import org.APD.AlgorithmResult;
 import org.APD.DeadlineCloudlet;
 import org.APD.RelevantDataForAlgorithms;
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
-import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
 import org.cloudsimplus.schedulers.cloudlet.CloudletSchedulerSpaceShared;
@@ -13,10 +12,6 @@ import org.cloudsimplus.util.Log;
 import org.cloudsimplus.vms.Vm;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import static java.util.Comparator.comparingLong;
 
 public class RoundRobinAlgorithm extends BaseSchedulingAlgorithm {
 
@@ -33,7 +28,7 @@ public class RoundRobinAlgorithm extends BaseSchedulingAlgorithm {
         //Creates a broker that is a software acting on behalf of a cloud customer to manage his/her VMs and Cloudlets
         broker0 = new DatacenterBrokerSimple(simulation);
         vmList = createVms();
-        cloudletList = createCloudlets();
+        cloudletList = createCloudletsUniformDistribution();
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 

@@ -74,16 +74,16 @@ public class AlgorithmBaseFunctionalities {
     protected List<Vm> vmList;
     protected List<Host> hostList;
 
-    int TOTAL_FRAMES = 3; // how long you want the simulation to run in 10s chunks
-    protected static int MIPS_PER_VM = 1000; // Adjust this to your VM's actual MIPS capacity
-    protected static int MIPS_PER_HOST = 1000; // Adjust this to your Host's actual MIPS capacity
+    int TOTAL_FRAMES = 30; // how long you want the simulation to run in 10s chunks
+    protected static int MIPS_PER_VM = 3000; // Adjust this to your VM's actual MIPS capacity
+    protected static int MIPS_PER_HOST = 3000; // Adjust this to your Host's actual MIPS capacity
 
-    protected static int MIPS_PER_VM_INITIAL = 1000; // Adjust this to your VM's actual MIPS capacity
-    protected static int MIPS_PER_HOST_INITIAL = 1000; // Adjust this to your Host's actual MIPS capacity
+    protected static int MIPS_PER_VM_INITIAL = 3000; // Adjust this to your VM's actual MIPS capacity
+    protected static int MIPS_PER_HOST_INITIAL = 3000; // Adjust this to your Host's actual MIPS capacity
     double MIPS_PER_CLOUDLET_COMPLETION_ORDER_OF_10 = Math.log10(CLOUDLET_LENGTH_MIN);
     protected static int POWER_STATE = 0;
 
-    protected int TOTAL_CLOUDLETS = CLOUDLETS_PER_FRAME * TOTAL_FRAMES;
+    protected static int TOTAL_CLOUDLETS = 0; // total number of cloudlets to be created, set after creating the cloudlet list
 
     /**
      * Prints the following information from VM's utilization stats:
@@ -236,7 +236,7 @@ public class AlgorithmBaseFunctionalities {
         return list;
     }
 
-    protected  List<DeadlineCloudlet> createCloudlets() {
+    protected  List<DeadlineCloudlet> createCloudletsUniformDistribution() {
         final List<DeadlineCloudlet> cloudletList = new ArrayList<>();
         final var utilization = new UtilizationModelDynamic(0.002);
         final Random random = new Random();
@@ -273,8 +273,143 @@ public class AlgorithmBaseFunctionalities {
 
         // sort the cloudlets by submission delay
         cloudletList.sort(comparingDouble(Cloudlet::getSubmissionDelay));
+        // set the TOTAL_CLOUDLETS to the size of the cloudletList
+        TOTAL_CLOUDLETS = cloudletList.size();
         return cloudletList;
     }
+
+    protected List<DeadlineCloudlet> createCloudletsBurstyArrivalTightDeadlineHeavyTaylored() {
+        final List<DeadlineCloudlet> cloudletList = new ArrayList<>();
+        final var utilization = new UtilizationModelDynamic(0.002);
+        final Random random = new Random();
+
+        int id = 0;
+        int pes = 1;
+
+        for (int frame = 0; frame < TOTAL_FRAMES; frame++) {
+            double frameStartTime = frame * 10;
+
+            // Bursty pattern: every 5th frame has a spike in jobs
+            int cloudletsThisFrame = CLOUDLETS_PER_FRAME - 2 + random.nextInt(5);
+            if (frame % 5 == 0) {
+                cloudletsThisFrame += 10; // burst every 5 frames
+            }
+
+            for (int i = 0; i < cloudletsThisFrame; i++) {
+                // Log-normal-like execution time: most short, some very long
+                double mean = 1.5, stdDev = 1.0;
+                double logNormalExecTime = Math.exp(mean + stdDev * random.nextGaussian());
+                double execTimeSec = Math.min(logNormalExecTime, 20.0); // cap at 20s
+
+                // Translate to Cloudlet length (simulating job size)
+                long length = (long) (execTimeSec * CLOUDLET_LENGTH_MIN);
+
+                // Submission: random within this 10-second frame
+                double submissionDelay = frameStartTime + random.nextDouble() * 10;
+
+                // Deadline: tight margin (1.5× exec time + jitter)
+                double jitter = 1.0 + random.nextDouble() * 2.0;
+                double deadline = submissionDelay + execTimeSec * 1.5 + jitter;
+
+                DeadlineCloudlet cloudlet = (DeadlineCloudlet) new DeadlineCloudlet(id++, length, pes)
+                        .setFileSize(1024)
+                        .setOutputSize(1024)
+                        .setUtilizationModelCpu(new UtilizationModelFull())
+                        .setUtilizationModelRam(utilization)
+                        .setUtilizationModelBw(utilization);
+
+                cloudlet.setSubmissionDelay(submissionDelay);
+                cloudlet.setDeadline(deadline);
+
+                cloudletList.add(cloudlet);
+            }
+        }
+
+        // Sort cloudlets by submission time
+        cloudletList.sort(comparingDouble(Cloudlet::getSubmissionDelay));
+        // set the TOTAL_CLOUDLETS to the size of the cloudletList
+        TOTAL_CLOUDLETS = cloudletList.size();
+        return cloudletList;
+    }
+
+
+    protected List<DeadlineCloudlet> createCloudletsBurstyArrivalTightDeadlineHeavyTayloredBigGroupedJobs() {
+        final List<DeadlineCloudlet> cloudletList = new ArrayList<>();
+        final var utilization = new UtilizationModelDynamic(0.002);
+        final Random random = new Random();
+
+        int id = 0;
+        int pes = 1;
+
+        for (int frame = 0; frame < TOTAL_FRAMES; frame++) {
+            double frameStartTime = frame * 10;
+
+            // Bursty pattern: every 5th frame has a spike in jobs
+            int cloudletsThisFrame = CLOUDLETS_PER_FRAME - 2 + random.nextInt(5);
+            if (frame % 5 == 0) {
+                cloudletsThisFrame += 10; // burst every 5 frames
+            }
+
+            boolean injectTightCluster = random.nextDouble() < 0.2; // 20% chance to inject a tight group
+            if (injectTightCluster) {
+                double clusterStartTime = frameStartTime + random.nextDouble() * 5; // random time within first half of frame
+                for (int j = 0; j < 4; j++) {
+                    double execTimeSec = 1.0 + random.nextDouble(); // short jobs
+                    long length = (long) (execTimeSec * CLOUDLET_LENGTH_MIN);
+
+                    double submissionDelay = clusterStartTime + j * 0.01; // very close submissions (10ms apart)
+                    double deadline = submissionDelay + execTimeSec * 1.2 + 1.0; // tight deadline
+
+                    DeadlineCloudlet cloudlet = (DeadlineCloudlet) new DeadlineCloudlet(id++, length, pes)
+                            .setFileSize(1024)
+                            .setOutputSize(1024)
+                            .setUtilizationModelCpu(new UtilizationModelFull())
+                            .setUtilizationModelRam(utilization)
+                            .setUtilizationModelBw(utilization);
+
+                    cloudlet.setSubmissionDelay(submissionDelay);
+                    cloudlet.setDeadline(deadline);
+                    cloudletList.add(cloudlet);
+                }
+            }
+
+            for (int i = 0; i < cloudletsThisFrame; i++) {
+                // Log-normal-like execution time: most short, some very long
+                double mean = 1.5, stdDev = 1.0;
+                double logNormalExecTime = Math.exp(mean + stdDev * random.nextGaussian());
+                double execTimeSec = Math.min(logNormalExecTime, 20.0); // cap at 20s
+
+                long length = (long) (execTimeSec * CLOUDLET_LENGTH_MIN);
+                double submissionDelay = frameStartTime + random.nextDouble() * 10;
+
+                double jitter = 1.0 + random.nextDouble() * 2.0;
+                double deadline = submissionDelay + execTimeSec * 1.5 + jitter;
+
+                DeadlineCloudlet cloudlet = (DeadlineCloudlet) new DeadlineCloudlet(id++, length, pes)
+                        .setFileSize(1024)
+                        .setOutputSize(1024)
+                        .setUtilizationModelCpu(new UtilizationModelFull())
+                        .setUtilizationModelRam(utilization)
+                        .setUtilizationModelBw(utilization);
+
+                cloudlet.setSubmissionDelay(submissionDelay);
+                cloudlet.setDeadline(deadline);
+
+                cloudletList.add(cloudlet);
+            }
+        }
+
+        // Sort cloudlets by submission time
+        cloudletList.sort(comparingDouble(Cloudlet::getSubmissionDelay));
+
+        // Update total
+        TOTAL_CLOUDLETS = cloudletList.size();
+        return cloudletList;
+    }
+
+
+
+
 
     protected List<DeadlineCloudlet> copyCloudlets(List<DeadlineCloudlet> cloudletList) {
         List<DeadlineCloudlet> cloudletClone = new ArrayList<>(cloudletList.size());

@@ -6,15 +6,10 @@ import org.APD.Algorithms.*;
 import org.APD.PowerModels.PowerModelPStateProcessor;
 import org.APD.PowerModels.PowerModelPstateProcessor_2GHz_Via_C7_M;
 import org.cloudsimplus.cloudlets.Cloudlet;
-import org.cloudsimplus.hosts.Host;
-import org.cloudsimplus.power.models.PowerModelHostSimple;
 import org.cloudsimplus.vms.Vm;
-import org.cloudsimplus.vms.VmResourceStats;
 import org.cloudsimplus.util.Log;
 
 import java.util.List;
-
-import static java.util.Comparator.comparingLong;
 
 public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
 
@@ -34,6 +29,10 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
 //        double MIPS_PER_CLOUDLET_COMPLETION_ORDER_OF_10 = Math.log10(CLOUDLET_LENGTH_MIN);
 //        protected static int POWER_STATE = 0;
         // to reflect the performance state
+//        List<DeadlineCloudlet> cloudletListInitial = createCloudletsUniformDistribution();
+//        List<DeadlineCloudlet> cloudletListInitial = createCloudletsBurstyArrivalTightDeadlineHeavyTaylored();
+        List<DeadlineCloudlet> cloudletListInitial = createCloudletsBurstyArrivalTightDeadlineHeavyTayloredBigGroupedJobs();
+
         for (int i = performanceStates.length - 1; i >= 0; i--) {
             MIPS_PER_HOST = (int) (performanceStates[i].processingFraction() * MIPS_PER_HOST_INITIAL);
             MIPS_PER_VM = (int) (performanceStates[i].processingFraction() * MIPS_PER_VM_INITIAL);
@@ -43,11 +42,9 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
                     "Performance State %d: MIPS_PER_HOST = %d, MIPS_PER_VM = %d\n" +
                     "-----------------------------------------------------------------------------------------------------------\n\n\n", i, MIPS_PER_HOST, MIPS_PER_VM);
 
-
+            List<DeadlineCloudlet> cloudletList = copyCloudlets(cloudletListInitial);
 
             List<Vm> vmList = createVms();
-            List<DeadlineCloudlet> cloudletList = createCloudlets();
-
 
             SchedulingAlgorithm fcfs = new FCFSAlgorithm_bin();
             SchedulingAlgorithm roundRobin = new RoundRobinAlgorithm();

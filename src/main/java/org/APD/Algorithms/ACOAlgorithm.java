@@ -6,7 +6,6 @@ import org.APD.RelevantDataForAlgorithms;
 import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
 import org.APD.DeadlineCloudlet;
-import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
@@ -15,8 +14,6 @@ import org.cloudsimplus.util.Log;
 import org.cloudsimplus.vms.Vm;
 
 import java.util.*;
-
-import static java.util.Comparator.comparingLong;
 
 public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
@@ -34,9 +31,9 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
     public ACOAlgorithm() {
 
-//        vmList = createVms();
-//        cloudletList = createCloudlets();
-//        algorithmACO();
+        vmList = createVms();
+        cloudletList = createCloudletsUniformDistribution();
+        algorithmACO();
 //
 //        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
 //        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();

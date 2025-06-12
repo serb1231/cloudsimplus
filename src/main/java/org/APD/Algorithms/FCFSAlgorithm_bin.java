@@ -2,11 +2,9 @@ package org.APD.Algorithms;
 
 import ch.qos.logback.classic.Level;
 import org.APD.AlgorithmResult;
-import org.APD.DeadlineCloudlet;
 import org.APD.RelevantDataForAlgorithms;
 import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
-import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
@@ -15,8 +13,6 @@ import org.cloudsimplus.util.Log;
 import org.cloudsimplus.vms.Vm;
 
 import java.util.*;
-
-import static java.util.Comparator.comparingLong;
 
 public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
 
@@ -34,7 +30,7 @@ public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
         //Creates a broker that is a software acting on behalf of a cloud customer to manage his/her VMs and Cloudlets
         broker0 = new DatacenterBrokerSimple(simulation);
         vmList = createVms();
-        cloudletList = createCloudlets();
+        cloudletList = createCloudletsUniformDistribution();
 
         // set all the VMs to use the CloudletSchedulerSpaceShared scheduler
         for (Vm vm : vmList) {

@@ -47,7 +47,7 @@ public class GAAlgorithm extends BaseSchedulingAlgorithm {
     public GAAlgorithm() {
 
         vmList = createVms();
-        cloudletList = createCloudlets();
+        cloudletList = createCloudletsUniformDistribution();
 
         algorithmGA();
 
