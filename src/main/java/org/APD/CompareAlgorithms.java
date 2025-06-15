@@ -23,38 +23,40 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
         PowerModelPStateProcessor currentPowerModel = new PowerModelPstateProcessor_2GHz_Via_C7_M(0);
         PowerModelPStateProcessor.PerformanceState[] performanceStates = currentPowerModel.getPossiblePerformanceStates();
 
-        // for every performance state, modify the
-//        protected static int MIPS_PER_VM = 1000; // Adjust this to your VM's actual MIPS capacity
-//        protected static int MIPS_PER_HOST = 1000; // Adjust this to your Host's actual MIPS capacity
-//        double MIPS_PER_CLOUDLET_COMPLETION_ORDER_OF_10 = Math.log10(CLOUDLET_LENGTH_MIN);
-//        protected static int POWER_STATE = 0;
-        // to reflect the performance state
-//        List<DeadlineCloudlet> cloudletListInitial = createCloudletsUniformDistribution();
-//        List<DeadlineCloudlet> cloudletListInitial = createCloudletsBurstyArrivalTightDeadlineHeavyTaylored();
         List<DeadlineCloudlet> cloudletListInitial = createCloudletsBurstyArrivalTightDeadlineHeavyTayloredBigGroupedJobs();
 
         for (int i = performanceStates.length - 1; i >= 0; i--) {
-            MIPS_PER_HOST = (int) (performanceStates[i].processingFraction() * MIPS_PER_HOST_INITIAL);
-            MIPS_PER_VM = (int) (performanceStates[i].processingFraction() * MIPS_PER_VM_INITIAL);
+            MIPS_PER_HOST_MAX = (int) (performanceStates[i].processingFraction() * MIPS_PER_HOST_INITIAL_MAX);
+            MIPS_PER_VM_MAX = (int) (performanceStates[i].processingFraction() * MIPS_PER_VM_INITIAL_MAX);
+
+
+            MIPS_PER_HOST_MIN = (int) (performanceStates[i].processingFraction() * MIPS_PER_HOST_INITIAL_MIN);
+            MIPS_PER_VM_MIN = (int) (performanceStates[i].processingFraction() * MIPS_PER_VM_INITIAL_MIN);
             POWER_STATE = i;
             System.out.printf("\n\n\n" +
                     "-----------------------------------------------------------------------------------------------------------\n" +
                     "Performance State %d: MIPS_PER_HOST = %d, MIPS_PER_VM = %d\n" +
-                    "-----------------------------------------------------------------------------------------------------------\n\n\n", i, MIPS_PER_HOST, MIPS_PER_VM);
+                    "-----------------------------------------------------------------------------------------------------------\n\n\n", i, MIPS_PER_HOST_MAX, MIPS_PER_VM_MAX);
 
-            List<DeadlineCloudlet> cloudletList = copyCloudlets(cloudletListInitial);
+            List<DeadlineCloudlet> cloudletListRR = copyCloudlets(cloudletListInitial);
+            List<DeadlineCloudlet> cloudletListFCFS = copyCloudlets(cloudletListInitial);
+            List<DeadlineCloudlet> cloudletListACO = copyCloudlets(cloudletListInitial);
+            List<DeadlineCloudlet> cloudletListGA = copyCloudlets(cloudletListInitial);
 
-            List<Vm> vmList = createVms();
+            List<Vm> vmListRR = createVms();
+            List<Vm> vmListFCFS = createVms();
+            List<Vm> vmListACO = createVms();
+            List<Vm> vmListGA = createVms();
 
             SchedulingAlgorithm fcfs = new FCFSAlgorithm_bin();
             SchedulingAlgorithm roundRobin = new RoundRobinAlgorithm();
             SchedulingAlgorithm powerAware = new ACOAlgorithm();
             SchedulingAlgorithm gaAlgorithm = new GAAlgorithm();
 
-            AlgorithmResult resultFCFS = fcfs.run(createRelevantDataForAlgorithms(vmList, cloudletList));
-            AlgorithmResult resultRoundRobin = roundRobin.run(createRelevantDataForAlgorithms(vmList, cloudletList));
-            AlgorithmResult resultACO = powerAware.run(createRelevantDataForAlgorithms(vmList, cloudletList));
-            AlgorithmResult resultGA = gaAlgorithm.run(createRelevantDataForAlgorithms(vmList, cloudletList));
+            AlgorithmResult resultRoundRobin = roundRobin.run(createRelevantDataForAlgorithms(vmListRR, cloudletListRR));
+            AlgorithmResult resultFCFS = fcfs.run(createRelevantDataForAlgorithms(vmListFCFS, cloudletListFCFS));
+            AlgorithmResult resultACO = powerAware.run(createRelevantDataForAlgorithms(vmListACO, cloudletListACO));
+            AlgorithmResult resultGA = gaAlgorithm.run(createRelevantDataForAlgorithms(vmListGA, cloudletListGA));
 
             // if any of the SLA violations are broken, break the loop
             if (wereSLAViolations(resultFCFS.cloudletFinishedList()) ||
@@ -67,61 +69,65 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
                         "-----------------------------------------------------------------------------------------------------------\n\n\n");
 
                 // print the violated cloudlets and for which algorithm
-                System.out.println("Violated Cloudlets for FCFS:");
+                System.out.println("\n\n-----------------------------------------------------------------" +
+                        "Violated Cloudlets for FCFS:");
                 printSLAViolations(resultFCFS.cloudletFinishedList());
-                System.out.println("Violated Cloudlets for Round Robin:");
+                System.out.println("\n\n-----------------------------------------------------------------" +
+                        "Violated Cloudlets for Round Robin:");
                 printSLAViolations(resultRoundRobin.cloudletFinishedList());
-                System.out.println("Violated Cloudlets for ACO:");
+                System.out.println("\n\n-----------------------------------------------------------------" +
+                        "Violated Cloudlets for ACO:");
                 printSLAViolations(resultACO.cloudletFinishedList());
-                System.out.println("Violated Cloudlets for GA:");
+                System.out.println("\n\n-----------------------------------------------------------------" +
+                        "Violated Cloudlets for GA:");
                 printSLAViolations(resultGA.cloudletFinishedList());
                 return;
             }
 
-
-            System.out.println("\n\n\n----------------------------------------FCFS Algorithm Result:-----------------------------------------\n\n\n");
-            printVmsCpuUtilizationAndPowerConsumption(resultFCFS.vms());
-            printHostsCpuUtilizationAndPowerConsumption(resultFCFS.hosts());
-            double makespan = resultFCFS.cloudletFinishedList().stream()
-                    .mapToDouble(Cloudlet::getFinishTime)
-                    .max()
-                    .orElse(0.0);
-            System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespan);
-            // Print the SLA violations
-            printSLAViolations(resultFCFS.cloudletFinishedList());
-
-            System.out.println("\n\n\n----------------------------------------Round Robin Algorithm Result:-----------------------------------------\n\n\n");
-            printVmsCpuUtilizationAndPowerConsumption(resultRoundRobin.vms());
-            printHostsCpuUtilizationAndPowerConsumption(resultRoundRobin.hosts());
-            double makespanRoundRobin = resultRoundRobin.cloudletFinishedList().stream()
-                    .mapToDouble(Cloudlet::getFinishTime)
-                    .max()
-                    .orElse(0.0);
-            System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespanRoundRobin);
-            // Print the SLA violations
-            printSLAViolations(resultRoundRobin.cloudletFinishedList());
-
-            System.out.println("\n\n\n----------------------------------------ACO Algorithm Result:-----------------------------------------\n\n\n");
-            printVmsCpuUtilizationAndPowerConsumption(resultACO.vms());
-            printHostsCpuUtilizationAndPowerConsumption(resultACO.hosts());
-            double makespanACO = resultACO.cloudletFinishedList().stream()
-                    .mapToDouble(Cloudlet::getFinishTime)
-                    .max()
-                    .orElse(0.0);
-            System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespanACO);
-            // Print the SLA violations
-            printSLAViolations(resultACO.cloudletFinishedList());
-
-            System.out.println("\n\n\n----------------------------------------GA Algorithm Result:-----------------------------------------\n\n\n");
-            printVmsCpuUtilizationAndPowerConsumption(resultGA.vms());
-            printHostsCpuUtilizationAndPowerConsumption(resultGA.hosts());
-            double makespanGA = resultGA.cloudletFinishedList().stream()
-                    .mapToDouble(Cloudlet::getFinishTime)
-                    .max()
-                    .orElse(0.0);
-            System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespanGA);
-            // Print the SLA violations
-            printSLAViolations(resultGA.cloudletFinishedList());
+//
+//            System.out.println("\n\n\n----------------------------------------FCFS Algorithm Result:-----------------------------------------\n\n\n");
+//            printVmsCpuUtilizationAndPowerConsumption(resultFCFS.vms());
+//            printHostsCpuUtilizationAndPowerConsumption(resultFCFS.hosts());
+//            double makespan = resultFCFS.cloudletFinishedList().stream()
+//                    .mapToDouble(Cloudlet::getFinishTime)
+//                    .max()
+//                    .orElse(0.0);
+//            System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespan);
+//            // Print the SLA violations
+//            printSLAViolations(resultFCFS.cloudletFinishedList());
+//
+//            System.out.println("\n\n\n----------------------------------------Round Robin Algorithm Result:-----------------------------------------\n\n\n");
+//            printVmsCpuUtilizationAndPowerConsumption(resultRoundRobin.vms());
+//            printHostsCpuUtilizationAndPowerConsumption(resultRoundRobin.hosts());
+//            double makespanRoundRobin = resultRoundRobin.cloudletFinishedList().stream()
+//                    .mapToDouble(Cloudlet::getFinishTime)
+//                    .max()
+//                    .orElse(0.0);
+//            System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespanRoundRobin);
+//            // Print the SLA violations
+//            printSLAViolations(resultRoundRobin.cloudletFinishedList());
+//
+//            System.out.println("\n\n\n----------------------------------------ACO Algorithm Result:-----------------------------------------\n\n\n");
+//            printVmsCpuUtilizationAndPowerConsumption(resultACO.vms());
+//            printHostsCpuUtilizationAndPowerConsumption(resultACO.hosts());
+//            double makespanACO = resultACO.cloudletFinishedList().stream()
+//                    .mapToDouble(Cloudlet::getFinishTime)
+//                    .max()
+//                    .orElse(0.0);
+//            System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespanACO);
+//            // Print the SLA violations
+//            printSLAViolations(resultACO.cloudletFinishedList());
+//
+//            System.out.println("\n\n\n----------------------------------------GA Algorithm Result:-----------------------------------------\n\n\n");
+//            printVmsCpuUtilizationAndPowerConsumption(resultGA.vms());
+//            printHostsCpuUtilizationAndPowerConsumption(resultGA.hosts());
+//            double makespanGA = resultGA.cloudletFinishedList().stream()
+//                    .mapToDouble(Cloudlet::getFinishTime)
+//                    .max()
+//                    .orElse(0.0);
+//            System.out.printf("📌 Makespan (time of last cloudlet finish): %.2f seconds\n", makespanGA);
+//            // Print the SLA violations
+//            printSLAViolations(resultGA.cloudletFinishedList());
         }
     }
 

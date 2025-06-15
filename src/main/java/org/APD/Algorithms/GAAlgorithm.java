@@ -46,11 +46,11 @@ public class GAAlgorithm extends BaseSchedulingAlgorithm {
 
     public GAAlgorithm() {
 
-        vmList = createVms();
-        cloudletList = createCloudletsUniformDistribution();
-
-        algorithmGA();
-
+//        vmList = createVms();
+//        cloudletList = createCloudletsUniformDistribution();
+//
+//        algorithmGA();
+//
 //
 //        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
 //        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();

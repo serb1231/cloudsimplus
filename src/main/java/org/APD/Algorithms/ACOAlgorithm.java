@@ -17,12 +17,12 @@ import java.util.*;
 
 public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
-    protected final int numAnts = 10; // Number of ants
+    protected final int numAnts = 20; // Number of ants
     protected final double evaporationRate = 0.2; // Pheromone evaporation rate
     protected final double MIN_PHEROMONE_LEVEL = 0.8;
     protected final double MAX_PHEROMONE_LEVEL = 10.0; // Maximum pheromone level
 
-    protected final int iterations = 50; // Number of iterations for the algorithm
+    protected final int iterations = 70; // Number of iterations for the algorithm
 
     public static void main(String[] args) {
         Log.setLevel(Level.OFF);
@@ -31,9 +31,9 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
     public ACOAlgorithm() {
 
-        vmList = createVms();
-        cloudletList = createCloudletsUniformDistribution();
-        algorithmACO();
+//        vmList = createVms();
+//        cloudletList = createCloudletsUniformDistribution();
+//        algorithmACO();
 //
 //        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
 //        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();

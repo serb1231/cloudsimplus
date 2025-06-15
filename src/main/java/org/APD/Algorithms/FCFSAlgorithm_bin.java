@@ -24,30 +24,30 @@ public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
     // Run the algorothm using the default data from the BaseSchedulingAlgorithm class
     public FCFSAlgorithm_bin() {
 
-        simulation = new CloudSimPlus();
-        hostList = new ArrayList<>(HOSTS);
-        Datacenter datacenter0 = createDatacenter();
-        //Creates a broker that is a software acting on behalf of a cloud customer to manage his/her VMs and Cloudlets
-        broker0 = new DatacenterBrokerSimple(simulation);
-        vmList = createVms();
-        cloudletList = createCloudletsUniformDistribution();
-
-        // set all the VMs to use the CloudletSchedulerSpaceShared scheduler
-        for (Vm vm : vmList) {
-            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
-            // print the VM allocation
-//            System.out.printf("Vm %d allocated to Broker %d%n", vm.getId(), broker0.getId());
-        }
-
-        broker0.submitVmList(vmList);
-        Queue<Cloudlet> queue = new ArrayDeque<>(cloudletList);
-        Set<Vm> busyVms = new HashSet<>();
-        simulation.addOnSimulationStartListener(evt -> {
-//            System.out.printf("Simulation clock: %.2f\n", simulation.clock());
-            submitNextFCFS(queue, broker0, vmList, busyVms);
-        });
-
-        simulation.start();
+//        simulation = new CloudSimPlus();
+//        hostList = new ArrayList<>(HOSTS);
+//        Datacenter datacenter0 = createDatacenter();
+//        //Creates a broker that is a software acting on behalf of a cloud customer to manage his/her VMs and Cloudlets
+//        broker0 = new DatacenterBrokerSimple(simulation);
+//        vmList = createVms();
+//        cloudletList = createCloudletsUniformDistribution();
+//
+//        // set all the VMs to use the CloudletSchedulerSpaceShared scheduler
+//        for (Vm vm : vmList) {
+//            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
+//            // print the VM allocation
+////            System.out.printf("Vm %d allocated to Broker %d%n", vm.getId(), broker0.getId());
+//        }
+//
+//        broker0.submitVmList(vmList);
+//        Queue<Cloudlet> queue = new ArrayDeque<>(cloudletList);
+//        Set<Vm> busyVms = new HashSet<>();
+//        simulation.addOnSimulationStartListener(evt -> {
+////            System.out.printf("Simulation clock: %.2f\n", simulation.clock());
+//            submitNextFCFS(queue, broker0, vmList, busyVms);
+//        });
+//
+//        simulation.start();
 //
 //        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL+" -------------------------------");
 //        final var cloudletFinishedList = broker0.getCloudletFinishedList();

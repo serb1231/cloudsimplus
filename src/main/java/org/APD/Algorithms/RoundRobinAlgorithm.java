@@ -22,28 +22,28 @@ public class RoundRobinAlgorithm extends BaseSchedulingAlgorithm {
 
     public RoundRobinAlgorithm() {
 
-        simulation = new CloudSimPlus();
-        hostList = new ArrayList<>(HOSTS);
-        Datacenter datacenter0 = createDatacenter();
-        //Creates a broker that is a software acting on behalf of a cloud customer to manage his/her VMs and Cloudlets
-        broker0 = new DatacenterBrokerSimple(simulation);
-        vmList = createVms();
-        cloudletList = createCloudletsUniformDistribution();
-        broker0.submitVmList(vmList);
-        broker0.submitCloudletList(cloudletList);
-
-        for (int i = 0; i < cloudletList.size(); i++) {
-            DeadlineCloudlet cloudlet = cloudletList.get(i);
-            Vm vm = vmList.get(i % vmList.size()); // Allocate in a sequential manne
-            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
-            // print the cloudlet and vm allocation
-//            vm.setShutDownDelay(20);
-//            System.out.printf("Binding DeadlineCloudlet %d to Vm %d%n", cloudlet.getId(), vm.getId());
-
-            broker0.bindCloudletToVm(cloudlet, vm);
-        }
-
-        simulation.start();
+//        simulation = new CloudSimPlus();
+//        hostList = new ArrayList<>(HOSTS);
+//        Datacenter datacenter0 = createDatacenter();
+//        //Creates a broker that is a software acting on behalf of a cloud customer to manage his/her VMs and Cloudlets
+//        broker0 = new DatacenterBrokerSimple(simulation);
+//        vmList = createVms();
+//        cloudletList = createCloudletsUniformDistribution();
+//        broker0.submitVmList(vmList);
+//        broker0.submitCloudletList(cloudletList);
+//
+//        for (int i = 0; i < cloudletList.size(); i++) {
+//            DeadlineCloudlet cloudlet = cloudletList.get(i);
+//            Vm vm = vmList.get(i % vmList.size()); // Allocate in a sequential manne
+//            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
+//            // print the cloudlet and vm allocation
+////            vm.setShutDownDelay(20);
+////            System.out.printf("Binding DeadlineCloudlet %d to Vm %d%n", cloudlet.getId(), vm.getId());
+//
+//            broker0.bindCloudletToVm(cloudlet, vm);
+//        }
+//
+//        simulation.start();
 
 //        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL+" -------------------------------");
 //        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();
