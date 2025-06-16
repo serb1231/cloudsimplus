@@ -39,7 +39,7 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
     public ACOAlgorithm() {
 
 //        vmList = createVms();
-//        cloudletList = createCloudletsBurstyArrivalTightDeadlineHeavyTayloredBigGroupedJobs();
+//        cloudletList = createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs();
 //        algorithmACO();
 //
 //        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
@@ -176,15 +176,15 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
             lastFinishTotal += lastFinishTime;
         }
 
-        double[] dezirability = new double[vmList.size()];
+        double[] desirability = new double[vmList.size()];
         for (Vm vm : vmList) {
             int vmId = (int) vm.getId();
             if (lastFinishTotal > 0) {
                 // if the last finish time is greater than the cloudlet's deadline, set the probability to 0.1
                 if (lastFinishTimes[vmId] + cloudlet.getLength()/vm.getMips() > cloudlet.getDeadline()) {
-                    dezirability[vmId] = 0.1;
+                    desirability[vmId] = 0.1;
                 } else {
-                    dezirability[vmId] = 1 + 3 * (lastFinishTimes[vmId] / lastFinishTotal);
+                    desirability[vmId] = 1 + 3 * (lastFinishTimes[vmId] / lastFinishTotal);
                 }
             }
         }
@@ -194,14 +194,14 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
         for (Vm vm : vmList) {
             int vmId = (int) vm.getId();
-            total += pow(pheromoneMatrix[cloudletId][vmId], PHER_INF) * pow(dezirability[vmId], HEUR_INF);
+            total += pow(pheromoneMatrix[cloudletId][vmId], PHER_INF) * pow(desirability[vmId], HEUR_INF);
         }
 
         // Step 2: Normalize to probabilities
         double[] probabilities = new double[vmList.size()];
         for (Vm vm : vmList) {
             int vmId = (int) vm.getId();
-            probabilities[vmId] = (pow(pheromoneMatrix[cloudletId][vmId], PHER_INF) * pow(dezirability[vmId], HEUR_INF)) / total;
+            probabilities[vmId] = (pow(pheromoneMatrix[cloudletId][vmId], PHER_INF) * pow(desirability[vmId], HEUR_INF)) / total;
         }
 
         // Step 3: Roulette wheel selection
@@ -320,9 +320,6 @@ class Ant {
     protected double fitness;
     protected List<DeadlineCloudlet> cloudletsFinished;
     protected int numberViolations;
-    protected double usedPower;
-
-
 
     public void assign(DeadlineCloudlet cl, Vm vm) {
         allocation.put(cl, vm);

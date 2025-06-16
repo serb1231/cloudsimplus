@@ -5,7 +5,6 @@ import org.APD.Algorithms.*;
 
 import org.APD.PowerModels.PowerModelPStateProcessor;
 import org.APD.PowerModels.PowerModelPstateProcessor_2GHz_Via_C7_M;
-import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.vms.Vm;
 import org.cloudsimplus.util.Log;
 
@@ -23,7 +22,7 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
         PowerModelPStateProcessor currentPowerModel = new PowerModelPstateProcessor_2GHz_Via_C7_M(0);
         PowerModelPStateProcessor.PerformanceState[] performanceStates = currentPowerModel.getPossiblePerformanceStates();
 
-        List<DeadlineCloudlet> cloudletListInitial = createCloudletsBurstyArrivalTightDeadlineHeavyTayloredBigGroupedJobs();
+        List<DeadlineCloudlet> cloudletListInitial = createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs();
 
         for (int i = performanceStates.length - 1; i >= 0; i--) {
             MIPS_PER_HOST_MAX = (int) (performanceStates[i].processingFraction() * MIPS_PER_HOST_INITIAL_MAX);
@@ -33,10 +32,16 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
             MIPS_PER_HOST_MIN = (int) (performanceStates[i].processingFraction() * MIPS_PER_HOST_INITIAL_MIN);
             MIPS_PER_VM_MIN = (int) (performanceStates[i].processingFraction() * MIPS_PER_VM_INITIAL_MIN);
             POWER_STATE = i;
-            System.out.printf("\n\n\n" +
-                    "-----------------------------------------------------------------------------------------------------------\n" +
-                    "Performance State %d: MIPS_PER_HOST = %d, MIPS_PER_VM = %d\n" +
-                    "-----------------------------------------------------------------------------------------------------------\n\n\n", i, MIPS_PER_HOST_MAX, MIPS_PER_VM_MAX);
+            System.out.printf("""
+                    
+                    
+                    
+                    -----------------------------------------------------------------------------------------------------------
+                    Performance State %d: MIPS_PER_HOST = %d, MIPS_PER_VM = %d
+                    -----------------------------------------------------------------------------------------------------------
+                    
+                    
+                    """, i, MIPS_PER_HOST_MAX, MIPS_PER_VM_MAX);
 
             List<DeadlineCloudlet> cloudletListRR = copyCloudlets(cloudletListInitial);
             List<DeadlineCloudlet> cloudletListFCFS = copyCloudlets(cloudletListInitial);
@@ -63,23 +68,53 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
                 wereSLAViolations(resultRoundRobin.cloudletFinishedList()) ||
                 wereSLAViolations(resultACO.cloudletFinishedList()) ||
                 wereSLAViolations(resultGA.cloudletFinishedList())) {
-                System.out.println("\n\n\n" +
-                        "-----------------------------------------------------------------------------------------------------------\n" +
-                        "SLA violations detected, stopping the simulation.\n" +
-                        "-----------------------------------------------------------------------------------------------------------\n\n\n");
+                System.out.println("""
+                        
+                        
+                        
+                        -----------------------------------------------------------------------------------------------------------
+                        SLA violations detected, stopping the simulation.
+                        -----------------------------------------------------------------------------------------------------------
+                        
+                        
+                        """);
 
                 // print the violated cloudlets and for which algorithm
-                System.out.println("\n\n-----------------------------------------------------------------" +
-                        "Violated Cloudlets for FCFS:");
+                System.out.println("""
+                        
+                        
+                        -----------------------------------------------------------------
+                        Violated Cloudlets for FCFS:
+                        -----------------------------------------------------------------
+                        
+                        """);
                 printSLAViolations(resultFCFS.cloudletFinishedList());
-                System.out.println("\n\n-----------------------------------------------------------------" +
-                        "Violated Cloudlets for Round Robin:");
+                System.out.println("""
+                        
+                        
+                        -----------------------------------------------------------------
+                        Violated Cloudlets for Round Robin:
+                        -----------------------------------------------------------------
+                        
+                        """);
                 printSLAViolations(resultRoundRobin.cloudletFinishedList());
-                System.out.println("\n\n-----------------------------------------------------------------" +
-                        "Violated Cloudlets for ACO:");
+                System.out.println("""
+                        
+                        
+                        -----------------------------------------------------------------
+                        Violated Cloudlets for ACO:
+                        -----------------------------------------------------------------
+                        
+                        """);
                 printSLAViolations(resultACO.cloudletFinishedList());
-                System.out.println("\n\n-----------------------------------------------------------------" +
-                        "Violated Cloudlets for GA:");
+                System.out.println("""
+                        
+                        
+                        -----------------------------------------------------------------
+                        Violated Cloudlets for GA:
+                        -----------------------------------------------------------------
+                        
+                        """);
                 printSLAViolations(resultGA.cloudletFinishedList());
                 return;
             }

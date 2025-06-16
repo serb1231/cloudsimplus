@@ -5,16 +5,13 @@ import org.cloudsimplus.power.models.PowerModelHostAbstract;
 
 /**
  * A discrete-state (DVFS-aware) power model.
- *
  * Each {@code PerformanceState} gives the <b>static</b> power drawn when the
  * CPU is running at or below the state’s speed <i>fraction</i>.
- *
  * Example:          util 0–5 % →  40 W
  *                   util 5–25 % → 65 W
  *                   util 25–50 % → 95 W
  *                   util 50–75 % →130 W
  *                   util 75–100 %→165 W
- *
  * The host jumps from one level to the next – there is no interpolation.
  */
 public class PowerModelPStateProcessor extends PowerModelHostAbstract {
@@ -32,7 +29,7 @@ public class PowerModelPStateProcessor extends PowerModelHostAbstract {
 
     /** Sorted ascending by {@code processingFraction}. */
     private final PerformanceState[] states;
-    private int currentStateIdx = 0;
+    private int currentStateIdx;
 
     /* ---------- ctor --------------------------------------------------- */
     public PowerModelPStateProcessor(int startingState, PerformanceState... states) {

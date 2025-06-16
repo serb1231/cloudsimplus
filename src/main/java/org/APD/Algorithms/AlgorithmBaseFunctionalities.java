@@ -88,7 +88,6 @@ public class AlgorithmBaseFunctionalities {
     protected static int MIPS_PER_VM_INITIAL_MIN = 2000; // Adjust this to your VM's actual MIPS capacity
     protected static int MIPS_PER_HOST_INITIAL_MIN = 2000; // Adjust this to your Host's actual MIPS capacity
 
-    double MIPS_PER_CLOUDLET_COMPLETION_ORDER_OF_10 = Math.log10(CLOUDLET_LENGTH_MIN);
     protected static int POWER_STATE = 0;
 
     protected static int TOTAL_CLOUDLETS = 0; // total number of cloudlets to be created, set after creating the cloudlet list
@@ -178,7 +177,7 @@ public class AlgorithmBaseFunctionalities {
      */
     protected Datacenter createDatacenter() {
         int mips_per_host = MIPS_PER_HOST_MAX;
-        int step = (int) (MIPS_PER_HOST_MAX - MIPS_PER_HOST_MIN) / (HOSTS - 1);
+        int step = (MIPS_PER_HOST_MAX - MIPS_PER_HOST_MIN) / (HOSTS - 1);
         for(int i = 0; i < HOSTS; i++) {
             final var host = createPowerHost(i, mips_per_host);
             hostList.add(host);
@@ -192,7 +191,7 @@ public class AlgorithmBaseFunctionalities {
 
     protected Datacenter createDatacenter(CloudSimPlus simulation, List<Host> hostList) {
         int mips_per_host = MIPS_PER_HOST_MAX;
-        int step = (int) (MIPS_PER_HOST_MAX - MIPS_PER_HOST_MIN) / (HOSTS - 1);
+        int step = (MIPS_PER_HOST_MAX - MIPS_PER_HOST_MIN) / (HOSTS - 1);
         for (int i = 0; i < HOSTS; i++) {
             final var host = createPowerHost(i, mips_per_host);
             hostList.add(host);
@@ -240,7 +239,7 @@ public class AlgorithmBaseFunctionalities {
     protected List<Vm> createVms() {
         final var list = new ArrayList<Vm>(VMS);
         int mips_per_vm = MIPS_PER_VM_MAX;
-        int step = (int) (MIPS_PER_VM_MAX - MIPS_PER_VM_MIN) / (VMS - 1);
+        int step = (MIPS_PER_VM_MAX - MIPS_PER_VM_MIN) / (VMS - 1);
         for (int i = 0; i < VMS; i++) {
             final var vm = new VmSimple(i, mips_per_vm, VM_PES);
             vm.setRam(512).setBw(1000).setSize(10000).enableUtilizationStats();
@@ -281,7 +280,7 @@ public class AlgorithmBaseFunctionalities {
                 }
                 else {
                     execTimeSec = 1.0 + random.nextDouble() * 2.0; // 1–3s
-//                long length = (long) (execTimeSec * MIPS_PER_CLOUDLET_COMPLETION); // length = time × MIPS
+                    // length = time × MIPS
                     length = (long) Math.min(CLOUDLET_LENGTH_MIN + random.nextDouble() * CLOUDLET_LENGTH_MAX, CLOUDLET_LENGTH_MAX);
                 }
 
@@ -310,7 +309,7 @@ public class AlgorithmBaseFunctionalities {
         return cloudletList;
     }
 
-    protected List<DeadlineCloudlet> createCloudletsBurstyArrivalTightDeadlineHeavyTayloredBigGroupedJobs() {
+    protected List<DeadlineCloudlet> createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs() {
         final List<DeadlineCloudlet> cloudletList = new ArrayList<>();
         final var utilization = new UtilizationModelDynamic(0.002);
         final Random random = new Random();
@@ -482,17 +481,11 @@ public class AlgorithmBaseFunctionalities {
 
     protected boolean wereSLAViolations(List<DeadlineCloudlet> cloudletListFinished) {
 
-        int violations = 0;
-        int total = 0;
-
         for (Cloudlet cl : cloudletListFinished) {
             if (cl instanceof DeadlineCloudlet dc) {
-                total++;
                 double finish = dc.getFinishTime();
                 double deadline = dc.getDeadline();
                 boolean metDeadline = finish <= deadline;
-                double executionRequirement = cl.getLength() / cl.getVm().getMips();
-                double arrivalTime = dc.getSubmissionDelay();
 
                 if (!metDeadline) return true;
             }

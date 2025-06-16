@@ -34,7 +34,7 @@ public class RoundRobinAlgorithm extends BaseSchedulingAlgorithm {
 //
 //        for (int i = 0; i < cloudletList.size(); i++) {
 //            DeadlineCloudlet cloudlet = cloudletList.get(i);
-//            Vm vm = vmList.get(i % vmList.size()); // Allocate in a sequential manne
+//            Vm vm = vmList.get(i % vmList.size()); // Allocate in a sequential manner
 //            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
 //            // print the cloudlet and vm allocation
 ////            vm.setShutDownDelay(20);
@@ -71,7 +71,7 @@ public class RoundRobinAlgorithm extends BaseSchedulingAlgorithm {
 
         for (int i = 0; i < cloudletList.size(); i++) {
             DeadlineCloudlet cloudlet = cloudletList.get(i);
-            Vm vm = vmList.get(i % vmList.size()); // Allocate in a sequential manne
+            Vm vm = vmList.get(i % vmList.size()); // Allocate in a sequential manner
             vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
             // print the cloudlet and vm allocation
 //            vm.setShutDownDelay(20);

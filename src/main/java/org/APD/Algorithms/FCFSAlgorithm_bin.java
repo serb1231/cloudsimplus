@@ -21,7 +21,7 @@ public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
         new FCFSAlgorithm_bin();
     }
 
-    // Run the algorothm using the default data from the BaseSchedulingAlgorithm class
+    // Run the algorithm using the default data from the BaseSchedulingAlgorithm class
     public FCFSAlgorithm_bin() {
 
 //        simulation = new CloudSimPlus();
