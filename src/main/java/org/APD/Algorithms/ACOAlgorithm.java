@@ -6,6 +6,7 @@ import org.APD.RelevantDataForAlgorithms;
 import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
 import org.APD.DeadlineCloudlet;
+import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.core.CloudSimPlus;
 import org.cloudsimplus.datacenters.Datacenter;
@@ -14,6 +15,9 @@ import org.cloudsimplus.util.Log;
 import org.cloudsimplus.vms.Vm;
 
 import java.util.*;
+
+import static java.lang.Math.pow;
+import static java.util.Comparator.comparingLong;
 
 public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
@@ -24,15 +28,18 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
     protected final int iterations = 70; // Number of iterations for the algorithm
 
+    protected final int PHER_INF = 1;
+    protected final int HEUR_INF = 2;
+
     public static void main(String[] args) {
         Log.setLevel(Level.OFF);
-//        new ACOAlgorithm();
+        new ACOAlgorithm();
     }
 
     public ACOAlgorithm() {
 
 //        vmList = createVms();
-//        cloudletList = createCloudletsUniformDistribution();
+//        cloudletList = createCloudletsBurstyArrivalTightDeadlineHeavyTayloredBigGroupedJobs();
 //        algorithmACO();
 //
 //        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
@@ -162,39 +169,39 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
             lastFinishTimes[(int) vm.getId()] = lastFinishTime;
         }
-        // Normalize probabilities again based on last finish times
+
+        // compute the heuristic information based on the last finish time for each VM
         double lastFinishTotal = 0.0;
         for (double lastFinishTime : lastFinishTimes) {
             lastFinishTotal += lastFinishTime;
         }
+
+        double[] dezirability = new double[vmList.size()];
         for (Vm vm : vmList) {
             int vmId = (int) vm.getId();
             if (lastFinishTotal > 0) {
                 // if the last finish time is greater than the cloudlet's deadline, set the probability to 0.1
                 if (lastFinishTimes[vmId] + cloudlet.getLength()/vm.getMips() > cloudlet.getDeadline()) {
-                    pheromoneMatrixCopy[cloudletId][vmId] = 0.1;
+                    dezirability[vmId] = 0.1;
                 } else {
-                    pheromoneMatrixCopy[cloudletId][vmId] = MAX_PHEROMONE_LEVEL; // If it wouldn't break the deadline, assign it
-                    pheromoneMatrixCopy[cloudletId][vmId] += MAX_PHEROMONE_LEVEL * 3 * (lastFinishTimes[vmId] / lastFinishTotal);
+                    dezirability[vmId] = 1 + 3 * (lastFinishTimes[vmId] / lastFinishTotal);
                 }
             }
         }
 
         // Step 1: Extract pheromone levels for this cloudlet
-        double[] pheromones = new double[vmList.size()];
         double total = 0.0;
 
         for (Vm vm : vmList) {
             int vmId = (int) vm.getId();
-            pheromones[vmId] = pheromoneMatrixCopy[cloudletId][vmId];
-            total += pheromones[vmId];
+            total += pow(pheromoneMatrix[cloudletId][vmId], PHER_INF) * pow(dezirability[vmId], HEUR_INF);
         }
 
         // Step 2: Normalize to probabilities
         double[] probabilities = new double[vmList.size()];
         for (Vm vm : vmList) {
             int vmId = (int) vm.getId();
-            probabilities[vmId] = pheromones[vmId] / total;
+            probabilities[vmId] = (pow(pheromoneMatrix[cloudletId][vmId], PHER_INF) * pow(dezirability[vmId], HEUR_INF)) / total;
         }
 
         // Step 3: Roulette wheel selection
