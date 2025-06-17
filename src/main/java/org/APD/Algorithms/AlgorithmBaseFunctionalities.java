@@ -2,6 +2,7 @@ package org.APD.Algorithms;
 
 import org.APD.DeadlineCloudlet;
 import org.APD.PowerModels.PowerModelPStateProcessor;
+import org.apache.commons.math3.analysis.function.Pow;
 import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.core.CloudSimPlus;
@@ -88,7 +89,7 @@ public class AlgorithmBaseFunctionalities {
     protected static int MIPS_PER_VM_INITIAL_MIN = 2000; // Adjust this to your VM's actual MIPS capacity
     protected static int MIPS_PER_HOST_INITIAL_MIN = 2000; // Adjust this to your Host's actual MIPS capacity
 
-    protected static int POWER_STATE = 0;
+    protected static int POWER_STATE = 7;
 
     protected static int TOTAL_CLOUDLETS = 0; // total number of cloudlets to be created, set after creating the cloudlet list
 
@@ -118,7 +119,7 @@ public class AlgorithmBaseFunctionalities {
         int mips_per_host = MIPS_PER_HOST_MAX;
         int step = (MIPS_PER_HOST_MAX - MIPS_PER_HOST_MIN) / (HOSTS - 1);
         for (int i = 0; i < HOSTS; i++) {
-            final var host = createPowerHost(i, mips_per_host, (double) MIPS_PER_HOST_MAX / mips_per_host);
+            final var host = createPowerHost(i, mips_per_host, (double) mips_per_host / MIPS_PER_HOST_MAX);
             list.add(host);
             mips_per_host -= step; // Decrease MIPS for each host
         }
@@ -129,7 +130,7 @@ public class AlgorithmBaseFunctionalities {
     // slower than the previous one, so that the first one is the fastest and the last one is the slowest
     // also the first one is consuming the most power, and the last one is consuming the least power
     // this way, eachh one of them has basically some power states that are by some percentage slower than the previous one
-    protected Host createPowerHost(final int id, final int mipsPerHost, final double procentSlower) {
+    protected Host createPowerHost(final int id, final int mipsPerHost, final double procentSlowerAffectsOnlyPStateNotMIPS) {
         final var peList = new ArrayList<Pe>(HOST_PES);
         //List of Host's CPUs (Processing Elements, PEs)
         for (int i = 0; i < HOST_PES; i++) {
@@ -151,7 +152,7 @@ public class AlgorithmBaseFunctionalities {
                 .setStartupPower(HOST_START_UP_POWER)
                 .setShutDownPower(HOST_SHUT_DOWN_POWER);
 
-        powerModel.modifyPerformanceStatesByPercentageSlower(procentSlower);
+        powerModel.modifyPerformanceStatesByPercentageSlower(procentSlowerAffectsOnlyPStateNotMIPS);
 
         host.setId(id)
                 .setVmScheduler(vmScheduler)
@@ -181,6 +182,61 @@ public class AlgorithmBaseFunctionalities {
         }
 
         return copiedHosts;
+    }
+
+    protected HostVmPair modifyHostAndVmToHaveOneHostWithLowerPower(List<Host> hostList, List<Vm> vmList, Vm vmToModify) {
+        // The vm we received is from the last iteration, hence has a different place in memory. We should look at id, as they are indexed
+        // Find the host of the VM to modify
+        Host hostToModify = vmToModify.getHost();
+        if (hostToModify == null) {
+            throw new IllegalArgumentException("The VM does not have a host assigned.");
+        }
+        // Create a new host with lower MIPS and power consumption
+        double getCurentHostMips = hostToModify.getMips();
+        int currentPerformanceState = ((PowerModelPStateProcessor) hostToModify.getPowerModel()).getCurrentPerformanceState();
+        double currentProcessingFraction = ((PowerModelPStateProcessor) hostToModify.getPowerModel()).getPossiblePerformanceStates()[currentPerformanceState].processingFraction();
+        // if this processingFraction is already the minimum, return false
+//        if (currentPerformanceState == 0) {
+//            System.out.println("The host is already at the minimum performance state, cannot modify further.");
+//            return null; // No modification possible
+//        }
+        int futurePerformanceState = currentPerformanceState - 1; // Move to the next performance state
+        double newProcessingFraction = ((PowerModelPStateProcessor) hostToModify.getPowerModel()).getPossiblePerformanceStates()[futurePerformanceState].processingFraction();
+
+        // create a new host with lower MIPS and power consumption
+        PowerModelPStateProcessor powerModel = new PowerModelPStateProcessor((PowerModelPStateProcessor) hostToModify.getPowerModel());
+        powerModel.setCurrentPerformanceState(futurePerformanceState);
+        // print the currentProcessingFraction and the newProcessingFraction
+//        System.out.printf("Current Processing Fraction: %.2f, New Processing Fraction: %.2f%n", currentProcessingFraction, newProcessingFraction);
+        Host hostToModifyNew = createPowerHost(
+                (int) hostToModify.getId(),
+                (int) (getCurentHostMips / currentProcessingFraction * newProcessingFraction),
+                1
+        );
+        hostToModifyNew.setPowerModel(powerModel);
+        Vm vmToModifyNew = new VmSimple(vmToModify.getId(), (int) (vmToModify.getMips() / currentProcessingFraction * newProcessingFraction), vmToModify.getPesNumber());
+
+        List<Host> newHostList = new ArrayList<>();
+        for (Host h : hostList) {
+            if (h.getId() == hostToModify.getId()) {
+                newHostList.add(hostToModifyNew); // replace the host
+            } else {
+                newHostList.add(h); // copy unchanged
+            }
+        }
+
+        List<Vm> newVmList = new ArrayList<>();
+        for (Vm v : vmList) {
+            if (v.getId() == vmToModify.getId()) {
+                newVmList.add(vmToModifyNew); // replace the VM
+            } else {
+                newVmList.add(v); // copy unchanged
+            }
+        }
+
+
+        // Return the modified host and VM
+        return new HostVmPair(newHostList, newVmList);
     }
 
     protected  List<DeadlineCloudlet> createCloudletsUniformDistribution_Outdated() {
@@ -610,4 +666,5 @@ public class AlgorithmBaseFunctionalities {
 
     }
 
+    public record HostVmPair(List<Host> hosts, List<Vm> vms) {}
 }
