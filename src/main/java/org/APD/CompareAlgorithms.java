@@ -69,20 +69,20 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
             List<Host> hostList = createHostsInitialDistribution();
             AlgorithmResult resultRR = runAlgorithmEnergyAware(RoundRobinAlgorithm.class, "Round Robin", cloudletListInitial, hostList, vmList);
 
-//            // Create hosts and VMs with the initial performance state
-//            vmList = createVms();
-//            hostList = createHostsInitialDistribution();
-//            AlgorithmResult resultFCFS = runAlgorithmEnergyAware(FCFSAlgorithm_bin.class, "FCFS", cloudletListInitial, hostList, vmList);
-//
-//            // Create hosts and VMs with the initial performance state
-//            vmList = createVms();
-//            hostList = createHostsInitialDistribution();
-//            AlgorithmResult resultGA = runAlgorithmEnergyAware(GAAlgorithm.class, "GA", cloudletListInitial, hostList, vmList);
-//
-//            // Create hosts and VMs with the initial performance state
-//            vmList = createVms();
-//            hostList = createHostsInitialDistribution();
-//            AlgorithmResult resultACO = runAlgorithmEnergyAware(ACOAlgorithm.class, "ACO", cloudletListInitial, hostList, vmList);
+            // Create hosts and VMs with the initial performance state
+            vmList = createVms();
+            hostList = createHostsInitialDistribution();
+            AlgorithmResult resultFCFS = runAlgorithmEnergyAware(FCFSAlgorithm_bin.class, "FCFS", cloudletListInitial, hostList, vmList);
+
+            // Create hosts and VMs with the initial performance state
+            vmList = createVms();
+            hostList = createHostsInitialDistribution();
+            AlgorithmResult resultGA = runAlgorithmEnergyAware(GAAlgorithm.class, "GA", cloudletListInitial, hostList, vmList);
+
+            // Create hosts and VMs with the initial performance state
+            vmList = createVms();
+            hostList = createHostsInitialDistribution();
+            AlgorithmResult resultACO = runAlgorithmEnergyAware(ACOAlgorithm.class, "ACO", cloudletListInitial, hostList, vmList);
 
 
         } catch (FileNotFoundException e) {

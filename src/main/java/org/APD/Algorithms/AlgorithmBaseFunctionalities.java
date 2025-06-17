@@ -620,6 +620,7 @@ public class AlgorithmBaseFunctionalities {
      */
     protected void printVmsCpuUtilizationAndPowerConsumption(List<Vm> vmList) {
         vmList.sort(comparingLong(vm -> vm.getHost().getId()));
+        double totalPowerConsumption = 0;
         for (Vm vm : vmList) {
             //vm.getUtilizationHistory().enable(); // Enable utilization history if not already enabled
             final var powerModel = vm.getHost().getPowerModel();
@@ -629,6 +630,7 @@ public class AlgorithmBaseFunctionalities {
             //VM CPU utilization relative to the host capacity
             final double vmRelativeCpuUtilization = vm.getCpuUtilizationStats().getMean() / vm.getHost().getVmCreatedList().size();
             final double vmPower = powerModel.getPower(vmRelativeCpuUtilization) - hostStaticPower + hostStaticPowerByVm; // W
+            totalPowerConsumption += vmPower;
             final VmResourceStats cpuStats = vm.getCpuUtilizationStats();
             // also print the hostStaticPower, hostStaticPowerByVM, and vmRelativeCpuUtilization
             System.out.printf(
@@ -637,6 +639,9 @@ public class AlgorithmBaseFunctionalities {
             // print vm.getHost().getVmCreatedList().size()
             System.out.printf("Host %2d VMs: %d%n", vm.getHost().getId(), vm.getHost().getVmCreatedList().size());
         }
+        // print the total power consumption of the host
+        System.out.println();
+        System.out.printf("Total Host Power Consumption: %.0f W%n", totalPowerConsumption);
 
     }
 
