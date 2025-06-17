@@ -93,117 +93,43 @@ public class AlgorithmBaseFunctionalities {
     protected static int TOTAL_CLOUDLETS = 0; // total number of cloudlets to be created, set after creating the cloudlet list
 
     /**
-     * Prints the following information from VM's utilization stats:
-     * <ul>
-     *   <li>VM's mean CPU utilization relative to the total Host's CPU utilization.
-     *       For instance, if the CPU utilization mean of two equal VMs is 100% of their CPU, the utilization
-     *       of each one corresponds to 50% of the Host's CPU utilization.</li>
-     *   <li>VM's power consumption relative to the total Host's power consumption.</li>
-     * </ul>
-     *
-     * <p>A Host, even if idle, may consume a static amount of power.
-     * Let's say it consumes 20 W in idle state and that for each 1% of CPU use it consumes 1 W more.
-     * For the 2 VMs of the example above, each one using 50% of CPU will consume 50 W.
-     * That is 100 W for the 2 VMs, plus the 20 W that is static.
-     * Therefore, we have a total Host power consumption of 120 W.
-     * </p>
-     *
-     * <p>
-     * If we compute the power consumption for a single VM by
-     * calling {@code vm.getHost().getPowerModel().getPower(hostCpuUsage)},
-     * we get the 50 W consumed by the VM, plus the 20 W of static power.
-     * This adds up to 70 W. If the two VMs are equal and using the same amount of CPU,
-     * their power consumption would be the half of the total Host's power consumption.
-     * This would be 60 W, not 70.
-     * </p>
-     *
-     * <p>This way, we have to compute VM power consumption by sharing a supposed Host static power
-     * consumption with each VM, as it's being shown here.
-     * Not all {@link PowerModelPstateProcessor_2GHz_Via_C7_M} have this static power consumption.
-     * However, the way the VM power consumption
-     * is computed here, that detail is abstracted.
-     * </p>
+     * Creates a {@link Datacenter} and its {@link Host}s.
      */
-    protected void printVmsCpuUtilizationAndPowerConsumption(List<Vm> vmList) {
-        vmList.sort(comparingLong(vm -> vm.getHost().getId()));
-        for (Vm vm : vmList) {
-            //vm.getUtilizationHistory().enable(); // Enable utilization history if not already enabled
-            final var powerModel = vm.getHost().getPowerModel();
-            final double hostStaticPower = powerModel instanceof PowerModelPStateProcessor powerModelHost ? powerModelHost.getStaticPower() : 0;
-            final double hostStaticPowerByVm = hostStaticPower / vm.getHost().getVmCreatedList().size();
-
-            //VM CPU utilization relative to the host capacity
-            final double vmRelativeCpuUtilization = vm.getCpuUtilizationStats().getMean() / vm.getHost().getVmCreatedList().size();
-            final double vmPower = powerModel.getPower(vmRelativeCpuUtilization) - hostStaticPower + hostStaticPowerByVm; // W
-            final VmResourceStats cpuStats = vm.getCpuUtilizationStats();
-            // also print the hostStaticPower, hostStaticPowerByVM, and vmRelativeCpuUtilization
-            System.out.printf(
-                    "Vm   %2d CPU Usage Mean: %6.1f%% | Power Consumption Mean: %8.0f W (Host Static Power: %.1f W, Host Static Power by VM: %.1f W, VM Relative CPU Utilization: %.2f)%n",
-                    vm.getId(), cpuStats.getMean() * 100, vmPower, hostStaticPower, hostStaticPowerByVm, vmRelativeCpuUtilization);
-            // print vm.getHost().getVmCreatedList().size()
-            System.out.printf("Host %2d VMs: %d%n", vm.getHost().getId(), vm.getHost().getVmCreatedList().size());
-        }
-
-    }
-
-    /**
-     * The Host CPU Utilization History is only computed
-     * if VMs utilization history is enabled by calling
-     * {@code vm.getUtilizationHistory().enable()}.
-     */
-    protected void printHostsCpuUtilizationAndPowerConsumption(List<Host> hostList) {
-        System.out.println();
-        for (final Host host : hostList) {
-            printHostCpuUtilizationAndPowerConsumption(host);
-        }
-        System.out.println();
-    }
-
-    protected void printHostCpuUtilizationAndPowerConsumption(final Host host) {
-        final HostResourceStats cpuStats = host.getCpuUtilizationStats();
-
-        //The total Host's CPU utilization for the time specified by the map key
-        final double utilizationPercentMean = cpuStats.getMean();
-        final double watts = host.getPowerModel().getPower(utilizationPercentMean);
-        final double maxWattsPossible = host.getPowerModel().getPower(1);
-        System.out.printf(
-                "Host %2d CPU Usage mean: %6.1f%% | Power Consumption : %8.0f W%n, | Max Power: %8.0f W%n",
-                host.getId(), utilizationPercentMean * 100, watts, maxWattsPossible);
-
+    protected Datacenter createDatacenter() {
+//        List<Host> hostList = createHostsInitialDistribution();
+        final var dc = new DatacenterSimple(simulation, hostList);
+        dc.setSchedulingInterval(SCHEDULING_INTERVAL);
+        return dc;
     }
 
     /**
      * Creates a {@link Datacenter} and its {@link Host}s.
+     * This method is used when the hosts are already created and passed as a parameter.
      */
-    protected Datacenter createDatacenter() {
-        int mips_per_host = MIPS_PER_HOST_MAX;
-        int step = (MIPS_PER_HOST_MAX - MIPS_PER_HOST_MIN) / (HOSTS - 1);
-        for(int i = 0; i < HOSTS; i++) {
-            final var host = createPowerHost(i, mips_per_host);
-            hostList.add(host);
-            mips_per_host -= step; // Decrease MIPS for each host
-        }
-
+    protected Datacenter createDatacenter(CloudSimPlus simulation, List<Host> hostList) {
+//        hostList = createHostsInitialDistribution();
         final var dc = new DatacenterSimple(simulation, hostList);
         dc.setSchedulingInterval(SCHEDULING_INTERVAL);
         return dc;
     }
 
-    protected Datacenter createDatacenter(CloudSimPlus simulation, List<Host> hostList) {
+    protected List<Host> createHostsInitialDistribution() {
+        final var list = new ArrayList<Host>(HOSTS);
         int mips_per_host = MIPS_PER_HOST_MAX;
         int step = (MIPS_PER_HOST_MAX - MIPS_PER_HOST_MIN) / (HOSTS - 1);
         for (int i = 0; i < HOSTS; i++) {
-            final var host = createPowerHost(i, mips_per_host);
-            hostList.add(host);
+            final var host = createPowerHost(i, mips_per_host, (double) MIPS_PER_HOST_MAX / mips_per_host);
+            list.add(host);
             mips_per_host -= step; // Decrease MIPS for each host
         }
-
-        final var dc = new DatacenterSimple(simulation, hostList);
-        dc.setSchedulingInterval(SCHEDULING_INTERVAL);
-        return dc;
+        return list;
     }
 
-    protected Host createPowerHost(final int id, final int mipsPerHost) {
+    // the procent slower is done for making the initial host respect a linear distribution. Eachone is a little
+    // slower than the previous one, so that the first one is the fastest and the last one is the slowest
+    // also the first one is consuming the most power, and the last one is consuming the least power
+    // this way, eachh one of them has basically some power states that are by some percentage slower than the previous one
+    protected Host createPowerHost(final int id, final int mipsPerHost, final double procentSlower) {
         final var peList = new ArrayList<Pe>(HOST_PES);
         //List of Host's CPUs (Processing Elements, PEs)
         for (int i = 0; i < HOST_PES; i++) {
@@ -225,6 +151,8 @@ public class AlgorithmBaseFunctionalities {
                 .setStartupPower(HOST_START_UP_POWER)
                 .setShutDownPower(HOST_SHUT_DOWN_POWER);
 
+        powerModel.modifyPerformanceStatesByPercentageSlower(procentSlower);
+
         host.setId(id)
                 .setVmScheduler(vmScheduler)
                 .setPowerModel(powerModel);
@@ -233,22 +161,26 @@ public class AlgorithmBaseFunctionalities {
         return host;
     }
 
-    /**
-     * Creates a list of VMs.
-     */
-    protected List<Vm> createVms() {
-        final var list = new ArrayList<Vm>(VMS);
-        int mips_per_vm = MIPS_PER_VM_MAX;
-        int step = (MIPS_PER_VM_MAX - MIPS_PER_VM_MIN) / (VMS - 1);
-        for (int i = 0; i < VMS; i++) {
-            final var vm = new VmSimple(i, mips_per_vm, VM_PES);
-            vm.setRam(512).setBw(1000).setSize(10000).enableUtilizationStats();
-            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
-            list.add(vm);
-            mips_per_vm -= step; // Decrease MIPS for each VM
+    protected List<Host> copyHosts(List<Host> originalHosts) {
+        List<Host> copiedHosts = new ArrayList<>();
+
+        for (Host original : originalHosts) {
+            int id = (int) original.getId();
+
+            // Extract MIPS from the first PE (assuming all PEs have the same MIPS)
+            int mips = (int) original.getPeList().get(0).getCapacity();
+
+            // Extract the power model to get current performance level (P-state)
+            PowerModelPStateProcessor powerModel = new PowerModelPStateProcessor((PowerModelPStateProcessor) original.getPowerModel());
+
+            // Create a new Host using your existing method
+            Host copy = createPowerHost(id, mips, 1);
+            copy.setPowerModel(powerModel);
+
+            copiedHosts.add(copy);
         }
 
-        return list;
+        return copiedHosts;
     }
 
     protected  List<DeadlineCloudlet> createCloudletsUniformDistribution_Outdated() {
@@ -410,10 +342,6 @@ public class AlgorithmBaseFunctionalities {
         return cloudletList;
     }
 
-
-
-
-
     protected List<DeadlineCloudlet> copyCloudlets(List<DeadlineCloudlet> cloudletList) {
         List<DeadlineCloudlet> cloudletClone = new ArrayList<>(cloudletList.size());
 
@@ -434,6 +362,24 @@ public class AlgorithmBaseFunctionalities {
         return cloudletClone;
     }
 
+    /**
+     * Creates a list of VMs.
+     */
+    protected List<Vm> createVms() {
+        final var list = new ArrayList<Vm>(VMS);
+        int mips_per_vm = MIPS_PER_VM_MAX;
+        int step = (MIPS_PER_VM_MAX - MIPS_PER_VM_MIN) / (VMS - 1);
+        for (int i = 0; i < VMS; i++) {
+            final var vm = new VmSimple(i, mips_per_vm, VM_PES);
+            vm.setRam(512).setBw(1000).setSize(10000).enableUtilizationStats();
+            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
+            list.add(vm);
+            mips_per_vm -= step; // Decrease MIPS for each VM
+        }
+
+        return list;
+    }
+
     protected List<Vm> copyVMs(List<Vm> vmList) {
         List<Vm> vmClone = new ArrayList<>(vmList.size());
 
@@ -451,6 +397,20 @@ public class AlgorithmBaseFunctionalities {
         }
 
         return vmClone;
+    }
+
+    protected boolean wereSLAViolations(List<DeadlineCloudlet> cloudletListFinished) {
+
+        for (Cloudlet cl : cloudletListFinished) {
+            if (cl instanceof DeadlineCloudlet dc) {
+                double finish = dc.getFinishTime();
+                double deadline = dc.getDeadline();
+                boolean metDeadline = finish <= deadline;
+
+                if (!metDeadline) return true;
+            }
+        }
+        return false;
     }
 
     protected void printSLAViolations(List<DeadlineCloudlet> cloudletListFinished) {
@@ -479,17 +439,175 @@ public class AlgorithmBaseFunctionalities {
                 violations, total, violations * 100.0 / total);
     }
 
-    protected boolean wereSLAViolations(List<DeadlineCloudlet> cloudletListFinished) {
+    protected void printSLAViolationsStatistics(List<DeadlineCloudlet> cloudletListFinished) {
+        System.out.println("\n------------------------------- SLA VIOLATIONS -------------------------------");
+
+        int violations = 0;
+        int total = 0;
+
+        double totalTardiness = 0;
+        double maxTardiness = 0;
+
+        double totalExecutionViolated = 0;
+        double totalExecution = 0;
+
+        // Tiers data
+        int tier1 = 0, tier2 = 0, tier3 = 0;
+        double tier1Total = 0, tier2Total = 0, tier3Total = 0;
+        double tier1Min = Double.MAX_VALUE, tier2Min = Double.MAX_VALUE, tier3Min = Double.MAX_VALUE;
+        double tier1Max = 0, tier2Max = 0, tier3Max = 0;
 
         for (Cloudlet cl : cloudletListFinished) {
             if (cl instanceof DeadlineCloudlet dc) {
+                total++;
                 double finish = dc.getFinishTime();
                 double deadline = dc.getDeadline();
-                boolean metDeadline = finish <= deadline;
+                double executionRequirement = (double) cl.getLength() / MIPS_PER_VM_MIN;
 
-                if (!metDeadline) return true;
+                boolean metDeadline = finish <= deadline;
+                double tardiness = Math.max(0, finish - deadline);
+                double relativeViolation = tardiness / deadline;
+
+                totalExecution += executionRequirement;
+
+                if (!metDeadline) {
+                    violations++;
+                    totalTardiness += tardiness;
+                    maxTardiness = Math.max(maxTardiness, tardiness);
+                    totalExecutionViolated += executionRequirement;
+
+                    if (relativeViolation <= 0.10) {
+                        tier1++;
+                        tier1Total += tardiness;
+                        tier1Min = Math.min(tier1Min, tardiness);
+                        tier1Max = Math.max(tier1Max, tardiness);
+                    } else if (relativeViolation <= 0.50) {
+                        tier2++;
+                        tier2Total += tardiness;
+                        tier2Min = Math.min(tier2Min, tardiness);
+                        tier2Max = Math.max(tier2Max, tardiness);
+                    } else {
+                        tier3++;
+                        tier3Total += tardiness;
+                        tier3Min = Math.min(tier3Min, tardiness);
+                        tier3Max = Math.max(tier3Max, tardiness);
+                    }
+                }
             }
         }
-        return false;
+
+        System.out.println("\n------------------------------- SLA STATISTICS -------------------------------");
+
+        double violationRatio = violations * 100.0 / total;
+        double avgTardiness = violations > 0 ? totalTardiness / violations : 0;
+        double execViolatedRatio = totalExecution > 0 ? totalExecutionViolated * 100.0 / totalExecution : 0;
+
+        System.out.printf("Total SLA violations: %d out of %d cloudlets (%.2f%%)%n", violations, total, violationRatio);
+        System.out.printf("Average tardiness: %.2f seconds%n", avgTardiness);
+        System.out.printf("Maximum tardiness: %.2f seconds%n", maxTardiness);
+        System.out.printf("Total execution demand affected by violations: %.2f%% of total%n", execViolatedRatio);
+
+        if (violations > 0) {
+            System.out.println("\n----------------------- SLA VIOLATION SEVERITY TIERS ------------------------");
+
+            if (tier1 > 0) {
+                System.out.printf("Tier 1 (≤10%% over deadline): %d (%.2f%% of violations)%n", tier1, tier1 * 100.0 / violations);
+                System.out.printf("  Avg Lateness: %.2f s | Min: %.2f s | Max: %.2f s%n",
+                        tier1Total / tier1, tier1Min, tier1Max);
+            }
+
+            if (tier2 > 0) {
+                System.out.printf("Tier 2 (>10%% and ≤50%%):     %d (%.2f%% of violations)%n", tier2, tier2 * 100.0 / violations);
+                System.out.printf("  Avg Lateness: %.2f s | Min: %.2f s | Max: %.2f s%n",
+                        tier2Total / tier2, tier2Min, tier2Max);
+            }
+
+            if (tier3 > 0) {
+                System.out.printf("Tier 3 (>50%%):               %d (%.2f%% of violations)%n", tier3, tier3 * 100.0 / violations);
+                System.out.printf("  Avg Lateness: %.2f s | Min: %.2f s | Max: %.2f s%n",
+                        tier3Total / tier3, tier3Min, tier3Max);
+            }
+        }
     }
+
+    /**
+     * Prints the following information from VM's utilization stats:
+     * <ul>
+     *   <li>VM's mean CPU utilization relative to the total Host's CPU utilization.
+     *       For instance, if the CPU utilization mean of two equal VMs is 100% of their CPU, the utilization
+     *       of each one corresponds to 50% of the Host's CPU utilization.</li>
+     *   <li>VM's power consumption relative to the total Host's power consumption.</li>
+     * </ul>
+     *
+     * <p>A Host, even if idle, may consume a static amount of power.
+     * Let's say it consumes 20 W in idle state and that for each 1% of CPU use it consumes 1 W more.
+     * For the 2 VMs of the example above, each one using 50% of CPU will consume 50 W.
+     * That is 100 W for the 2 VMs, plus the 20 W that is static.
+     * Therefore, we have a total Host power consumption of 120 W.
+     * </p>
+     *
+     * <p>
+     * If we compute the power consumption for a single VM by
+     * calling {@code vm.getHost().getPowerModel().getPower(hostCpuUsage)},
+     * we get the 50 W consumed by the VM, plus the 20 W of static power.
+     * This adds up to 70 W. If the two VMs are equal and using the same amount of CPU,
+     * their power consumption would be the half of the total Host's power consumption.
+     * This would be 60 W, not 70.
+     * </p>
+     *
+     * <p>This way, we have to compute VM power consumption by sharing a supposed Host static power
+     * consumption with each VM, as it's being shown here.
+     * Not all {@link PowerModelPstateProcessor_2GHz_Via_C7_M} have this static power consumption.
+     * However, the way the VM power consumption
+     * is computed here, that detail is abstracted.
+     * </p>
+     */
+    protected void printVmsCpuUtilizationAndPowerConsumption(List<Vm> vmList) {
+        vmList.sort(comparingLong(vm -> vm.getHost().getId()));
+        for (Vm vm : vmList) {
+            //vm.getUtilizationHistory().enable(); // Enable utilization history if not already enabled
+            final var powerModel = vm.getHost().getPowerModel();
+            final double hostStaticPower = powerModel instanceof PowerModelPStateProcessor powerModelHost ? powerModelHost.getStaticPower() : 0;
+            final double hostStaticPowerByVm = hostStaticPower / vm.getHost().getVmCreatedList().size();
+
+            //VM CPU utilization relative to the host capacity
+            final double vmRelativeCpuUtilization = vm.getCpuUtilizationStats().getMean() / vm.getHost().getVmCreatedList().size();
+            final double vmPower = powerModel.getPower(vmRelativeCpuUtilization) - hostStaticPower + hostStaticPowerByVm; // W
+            final VmResourceStats cpuStats = vm.getCpuUtilizationStats();
+            // also print the hostStaticPower, hostStaticPowerByVM, and vmRelativeCpuUtilization
+            System.out.printf(
+                    "Vm   %2d CPU Usage Mean: %6.1f%% | Power Consumption Mean: %8.0f W (Host Static Power: %.1f W, Host Static Power by VM: %.1f W, VM Relative CPU Utilization: %.2f)%n",
+                    vm.getId(), cpuStats.getMean() * 100, vmPower, hostStaticPower, hostStaticPowerByVm, vmRelativeCpuUtilization);
+            // print vm.getHost().getVmCreatedList().size()
+            System.out.printf("Host %2d VMs: %d%n", vm.getHost().getId(), vm.getHost().getVmCreatedList().size());
+        }
+
+    }
+
+    /**
+     * The Host CPU Utilization History is only computed
+     * if VMs utilization history is enabled by calling
+     * {@code vm.getUtilizationHistory().enable()}.
+     */
+    protected void printHostsCpuUtilizationAndPowerConsumption(List<Host> hostList) {
+        System.out.println();
+        for (final Host host : hostList) {
+            printHostCpuUtilizationAndPowerConsumption(host);
+        }
+        System.out.println();
+    }
+
+    protected void printHostCpuUtilizationAndPowerConsumption(final Host host) {
+        final HostResourceStats cpuStats = host.getCpuUtilizationStats();
+
+        //The total Host's CPU utilization for the time specified by the map key
+        final double utilizationPercentMean = cpuStats.getMean();
+        final double watts = host.getPowerModel().getPower(utilizationPercentMean);
+        final double maxWattsPossible = host.getPowerModel().getPower(1);
+        System.out.printf(
+                "Host %2d CPU Usage mean: %6.1f%% | Power Consumption : %8.0f W%n, | Max Power: %8.0f W%n",
+                host.getId(), utilizationPercentMean * 100, watts, maxWattsPossible);
+
+    }
+
 }

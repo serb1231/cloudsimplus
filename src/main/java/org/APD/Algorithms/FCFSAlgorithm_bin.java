@@ -67,7 +67,7 @@ public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
 
         copyGivenDataLocally(relevantDataForAlgorithms);
         simulation = new CloudSimPlus();
-        hostList = new ArrayList<>(HOSTS);
+//        hostList = new ArrayList<>(HOSTS);
 
         Datacenter datacenter0 = createDatacenter();
         //Creates a broker that is a software acting on behalf of a cloud customer to manage his/her VMs and Cloudlets

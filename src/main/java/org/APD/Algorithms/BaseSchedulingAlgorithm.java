@@ -24,6 +24,7 @@ public abstract class BaseSchedulingAlgorithm extends AlgorithmBaseFunctionaliti
         MAX_POWER = relevantDataForAlgorithms.maxPower();
         vmList = relevantDataForAlgorithms.vmList();
         cloudletList = relevantDataForAlgorithms.cloudletList();
+        hostList = relevantDataForAlgorithms.hostList();
     }
 
     @Override

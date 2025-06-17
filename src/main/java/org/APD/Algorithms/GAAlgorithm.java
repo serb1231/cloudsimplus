@@ -77,7 +77,7 @@ public class GAAlgorithm extends BaseSchedulingAlgorithm {
     private void algorithmGA() {
 
         simulation = new CloudSimPlus();
-        hostList = new ArrayList<>(HOSTS);
+//        hostList = new ArrayList<>(HOSTS);
         Datacenter datacenter0 = createDatacenter(simulation, hostList);
         broker0 = new DatacenterBrokerSimple(simulation);
 

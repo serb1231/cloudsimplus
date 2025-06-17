@@ -2,6 +2,8 @@ package org.APD.Algorithms;
 
 import ch.qos.logback.classic.Level;
 import org.APD.AlgorithmResult;
+import org.APD.PowerModels.PowerModelPstateProcessor_2GHz_Via_C7_M;
+import org.APD.PowerModels.PowerModelPStateProcessor;
 import org.APD.RelevantDataForAlgorithms;
 import org.cloudsimplus.brokers.DatacenterBroker;
 import org.cloudsimplus.brokers.DatacenterBrokerSimple;
@@ -19,7 +21,7 @@ import java.util.*;
 import static java.lang.Math.pow;
 import static java.util.Comparator.comparingLong;
 
-public class ACOAlgorithm extends BaseSchedulingAlgorithm {
+public class ACOAlgorithmEnergyHeuristic extends BaseSchedulingAlgorithm {
 
     protected final int numAnts = 20; // Number of ants
     protected final double evaporationRate = 0.2; // Pheromone evaporation rate
@@ -36,11 +38,11 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
         new ACOAlgorithm();
     }
 
-    public ACOAlgorithm() {
+    public ACOAlgorithmEnergyHeuristic() {
 
 //        vmList = createVms();
 //        cloudletList = createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs();
-//        algorithmACO();
+//        algorithmACOEnergyHeur();
 //
 //        System.out.println("------------------------------- SIMULATION FOR SCHEDULING INTERVAL = " + SCHEDULING_INTERVAL + " -------------------------------");
 //        final List<DeadlineCloudlet> cloudletFinishedList = broker0.getCloudletFinishedList();
@@ -66,7 +68,7 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
     public AlgorithmResult run(RelevantDataForAlgorithms input) {
         copyGivenDataLocally(input);
 
-        algorithmACO();
+        algorithmACOEnergyHeur();
 
         return new AlgorithmResult(getName(),
                 cloudletList,
@@ -75,10 +77,10 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
                 broker0.getCloudletFinishedList());
     }
 
-    private void  algorithmACO() {
+    private void  algorithmACOEnergyHeur() {
 
         simulation = new CloudSimPlus();
-//        hostList = new ArrayList<>(HOSTS);
+        hostList = new ArrayList<>(HOSTS);
         Datacenter datacenter0 = createDatacenter(simulation, hostList);
         broker0 = new DatacenterBrokerSimple(simulation);
 
@@ -89,7 +91,7 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
             ants = createAnts();
             for (Ant ant : ants) {
                 CloudSimPlus sim = new CloudSimPlus();
-                List<Host> hostlst = copyHosts(hostList);
+                List<Host> hostlst = new ArrayList<>(HOSTS);
 
                 Datacenter dc = createDatacenter(sim, hostlst);
                 DatacenterBroker broker = new DatacenterBrokerSimple(sim);
@@ -137,7 +139,7 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
             broker0.submitCloudlet(cl);
         }
 
-//        broker0.submitVmList(vmList);
+        broker0.submitVmList(vmList);
 
         simulation.start();
     }
@@ -315,8 +317,9 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 }
 
 
-class Ant {
+class AntEnergy {
     protected final Map<DeadlineCloudlet, Vm> allocation = new HashMap<>();
+    protected final Map<PowerModelPStateProcessor, Integer> allocation_power = new HashMap<>();
     protected double fitness;
     protected List<DeadlineCloudlet> cloudletsFinished;
     protected int numberViolations;

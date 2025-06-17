@@ -3,6 +3,11 @@ package org.APD.PowerModels;
 import org.cloudsimplus.power.PowerMeasurement;
 import org.cloudsimplus.power.models.PowerModelHostAbstract;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
 /**
  * A discrete-state (DVFS-aware) power model.
  * Each {@code PerformanceState} gives the <b>static</b> power drawn when the
@@ -28,7 +33,7 @@ public class PowerModelPStateProcessor extends PowerModelHostAbstract {
     /* ------------------------------------------------------------------ */
 
     /** Sorted ascending by {@code processingFraction}. */
-    private final PerformanceState[] states;
+    private PerformanceState[] states;
     private int currentStateIdx;
 
     /* ---------- ctor --------------------------------------------------- */
@@ -36,9 +41,9 @@ public class PowerModelPStateProcessor extends PowerModelHostAbstract {
         if (states == null || states.length == 0)
             throw new IllegalArgumentException("Must supply at least one PerformanceState");
 
-        this.states = java.util.Arrays.copyOf(states, states.length);
-        java.util.Arrays.sort(this.states,
-                java.util.Comparator.comparingDouble(PerformanceState::processingFraction));
+        this.states = Arrays.copyOf(states, states.length);
+        Arrays.sort(this.states,
+                Comparator.comparingDouble(PerformanceState::processingFraction));
 
         // Sanity: processingFraction ∈]0,1]  and strictly increasing
         double prev = 0;
@@ -50,6 +55,41 @@ public class PowerModelPStateProcessor extends PowerModelHostAbstract {
             prev = s.processingFraction;
         }
         currentStateIdx = startingState;
+    }
+
+    /**
+     * Copy constructor.
+     * Creates a deep copy of another PowerModelPStateProcessor.
+     */
+    public PowerModelPStateProcessor(PowerModelPStateProcessor other) {
+        if (other.states == null || other.states.length == 0)
+            throw new IllegalArgumentException("The provided model has no PerformanceStates");
+
+        // Deep copy of PerformanceState array (immutable record, so shallow copy is safe)
+        this.states = Arrays.copyOf(other.states, other.states.length);
+        this.currentStateIdx = other.currentStateIdx;
+    }
+
+    public void modifyPerformanceStatesByPercentageSlower(double percentage) {
+        List<PerformanceState> newStates = new ArrayList<>();
+        for (var state : states) {
+            PerformanceState newState = new PerformanceState(state.powerConsumption * percentage, state.processingFraction);
+            newStates.add(newState);
+        }
+        states = newStates.toArray(new PerformanceState[0]);
+        // sort the new states
+        Arrays.sort(this.states,
+                Comparator.comparingDouble(PerformanceState::processingFraction));
+
+        // Sanity: processingFraction ∈]0,1]  and strictly increasing
+        double prev = 0;
+        for (PerformanceState s : this.states) {
+            if (s.processingFraction <= prev || s.processingFraction > 1.0)
+//               // also print the state that caused the error
+                throw new IllegalArgumentException("processingFraction values must be in (0,1] and ascending order: " +
+                        s.processingFraction + " after " + prev);
+            prev = s.processingFraction;
+        }
     }
 
     /* ---------- public helpers ---------------------------------------- */
