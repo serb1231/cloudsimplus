@@ -8,27 +8,27 @@ Violated Cloudlets for Round Robin:
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 157 out of 249 cloudlets (63.05%)
-Average tardiness: 64.98 seconds
-Maximum tardiness: 166.12 seconds
-Total execution demand affected by violations: 19.48% of total
+Total SLA violations: 54 out of 233 cloudlets (23.18%)
+Average tardiness: 90.06 seconds
+Maximum tardiness: 322.32 seconds
+Total execution demand affected by violations: 10.70% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 18 (11.46% of violations)
-  Avg Lateness: 9.64 s | Min: 0.36 s | Max: 22.62 s
-Tier 2 (>10% and ≤50%):     69 (43.95% of violations)
-  Avg Lateness: 53.13 s | Min: 1.73 s | Max: 120.64 s
-Tier 3 (>50%):               70 (44.59% of violations)
-  Avg Lateness: 90.88 s | Min: 3.66 s | Max: 166.12 s
-Vm    0 CPU Usage Mean:   16.9% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.17)
+Tier 1 (≤10% over deadline): 16 (29.63% of violations)
+  Avg Lateness: 11.48 s | Min: 1.37 s | Max: 28.92 s
+Tier 2 (>10% and ≤50%):     27 (50.00% of violations)
+  Avg Lateness: 57.91 s | Min: 24.20 s | Max: 96.75 s
+Tier 3 (>50%):               11 (20.37% of violations)
+  Avg Lateness: 283.26 s | Min: 184.44 s | Max: 322.32 s
+Vm    0 CPU Usage Mean:    8.9% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.09)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   52.5% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.53)
+Vm    1 CPU Usage Mean:   15.3% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.15)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   41.0% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.41)
+Vm    2 CPU Usage Mean:   22.7% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.23)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   68.8% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.69)
+Vm    3 CPU Usage Mean:   28.4% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.28)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   85.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.85)
+Vm    4 CPU Usage Mean:   67.2% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.67)
 Host  4 VMs: 1
 
 Total Host Power Consumption: 700 W
@@ -43,166 +43,28 @@ Violated Cloudlets for FCFS:
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 99 out of 249 cloudlets (39.76%)
-Average tardiness: 20.76 seconds
-Maximum tardiness: 55.65 seconds
-Total execution demand affected by violations: 11.28% of total
+Total SLA violations: 56 out of 233 cloudlets (24.03%)
+Average tardiness: 45.09 seconds
+Maximum tardiness: 67.52 seconds
+Total execution demand affected by violations: 10.81% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 46 (46.46% of violations)
-  Avg Lateness: 7.95 s | Min: 0.01 s | Max: 19.77 s
-Tier 2 (>10% and ≤50%):     48 (48.48% of violations)
-  Avg Lateness: 34.35 s | Min: 2.01 s | Max: 55.65 s
-Tier 3 (>50%):               5 (5.05% of violations)
-  Avg Lateness: 8.13 s | Min: 3.11 s | Max: 9.85 s
-Vm    0 CPU Usage Mean:   54.6% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.55)
+Tier 1 (≤10% over deadline): 13 (23.21% of violations)
+  Avg Lateness: 17.31 s | Min: 3.06 s | Max: 27.60 s
+Tier 2 (>10% and ≤50%):     43 (76.79% of violations)
+  Avg Lateness: 53.48 s | Min: 24.76 s | Max: 67.52 s
+Vm    0 CPU Usage Mean:   33.7% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.34)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   57.8% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.58)
+Vm    1 CPU Usage Mean:   30.6% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.31)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   54.5% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.55)
+Vm    2 CPU Usage Mean:   37.3% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.37)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   65.8% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.66)
+Vm    3 CPU Usage Mean:   37.5% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.37)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   95.5% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.95)
+Vm    4 CPU Usage Mean:   49.5% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.50)
 Host  4 VMs: 1
 
 Total Host Power Consumption: 700 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for FCFS:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 102 out of 249 cloudlets (40.96%)
-Average tardiness: 19.09 seconds
-Maximum tardiness: 48.11 seconds
-Total execution demand affected by violations: 11.81% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 42 (41.18% of violations)
-  Avg Lateness: 9.11 s | Min: 0.01 s | Max: 19.61 s
-Tier 2 (>10% and ≤50%):     55 (53.92% of violations)
-  Avg Lateness: 27.59 s | Min: 2.80 s | Max: 48.11 s
-Tier 3 (>50%):               5 (4.90% of violations)
-  Avg Lateness: 9.51 s | Min: 3.11 s | Max: 11.53 s
-Vm    0 CPU Usage Mean:   60.2% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.60)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   67.3% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.67)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   65.3% | Power Consumption Mean:      135 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.65)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   81.0% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.81)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   95.4% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.95)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 695 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for FCFS:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 119 out of 249 cloudlets (47.79%)
-Average tardiness: 28.25 seconds
-Maximum tardiness: 63.14 seconds
-Total execution demand affected by violations: 13.72% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 21 (17.65% of violations)
-  Avg Lateness: 6.50 s | Min: 0.01 s | Max: 20.96 s
-Tier 2 (>10% and ≤50%):     90 (75.63% of violations)
-  Avg Lateness: 34.78 s | Min: 3.12 s | Max: 63.14 s
-Tier 3 (>50%):               8 (6.72% of violations)
-  Avg Lateness: 11.85 s | Min: 3.19 s | Max: 15.92 s
-Vm    0 CPU Usage Mean:   64.0% | Power Consumption Mean:      193 W (Host Static Power: 180.0 W, Host Static Power by VM: 180.0 W, VM Relative CPU Utilization: 0.64)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   76.2% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.76)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   79.6% | Power Consumption Mean:      137 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.80)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   75.1% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.75)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   79.7% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.80)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 690 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for FCFS:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 123 out of 249 cloudlets (49.40%)
-Average tardiness: 31.09 seconds
-Maximum tardiness: 71.96 seconds
-Total execution demand affected by violations: 13.79% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 26 (21.14% of violations)
-  Avg Lateness: 7.50 s | Min: 0.01 s | Max: 22.37 s
-Tier 2 (>10% and ≤50%):     91 (73.98% of violations)
-  Avg Lateness: 38.47 s | Min: 2.44 s | Max: 71.96 s
-Tier 3 (>50%):               6 (4.88% of violations)
-  Avg Lateness: 21.44 s | Min: 3.11 s | Max: 70.95 s
-Vm    0 CPU Usage Mean:   69.1% | Power Consumption Mean:      171 W (Host Static Power: 150.0 W, Host Static Power by VM: 150.0 W, VM Relative CPU Utilization: 0.69)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   76.0% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.76)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   84.7% | Power Consumption Mean:      138 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.85)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   81.0% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.81)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   90.5% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.91)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 669 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for FCFS:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 140 out of 249 cloudlets (56.22%)
-Average tardiness: 31.06 seconds
-Maximum tardiness: 72.05 seconds
-Total execution demand affected by violations: 15.40% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 37 (26.43% of violations)
-  Avg Lateness: 9.58 s | Min: 0.01 s | Max: 23.30 s
-Tier 2 (>10% and ≤50%):     97 (69.29% of violations)
-  Avg Lateness: 40.43 s | Min: 3.82 s | Max: 72.05 s
-Tier 3 (>50%):               6 (4.29% of violations)
-  Avg Lateness: 12.15 s | Min: 3.11 s | Max: 16.13 s
-Vm    0 CPU Usage Mean:   84.2% | Power Consumption Mean:      147 W (Host Static Power: 130.0 W, Host Static Power by VM: 130.0 W, VM Relative CPU Utilization: 0.84)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   82.4% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.82)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   83.3% | Power Consumption Mean:      138 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.83)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   87.1% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.87)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   90.1% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.90)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 645 W
 SLA violations are not acceptable, stopping the algorithm.
 
 
@@ -214,27 +76,27 @@ Violated Cloudlets for GA:
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 112 out of 249 cloudlets (44.98%)
-Average tardiness: 50.88 seconds
-Maximum tardiness: 125.77 seconds
-Total execution demand affected by violations: 13.68% of total
+Total SLA violations: 7 out of 233 cloudlets (3.00%)
+Average tardiness: 135.71 seconds
+Maximum tardiness: 234.39 seconds
+Total execution demand affected by violations: 0.97% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 22 (19.64% of violations)
-  Avg Lateness: 8.20 s | Min: 0.65 s | Max: 22.78 s
-Tier 2 (>10% and ≤50%):     54 (48.21% of violations)
-  Avg Lateness: 49.03 s | Min: 3.52 s | Max: 91.05 s
-Tier 3 (>50%):               36 (32.14% of violations)
-  Avg Lateness: 79.72 s | Min: 14.71 s | Max: 125.77 s
-Vm    0 CPU Usage Mean:   63.6% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.64)
+Tier 1 (≤10% over deadline): 2 (28.57% of violations)
+  Avg Lateness: 0.29 s | Min: 0.22 s | Max: 0.37 s
+Tier 2 (>10% and ≤50%):     1 (14.29% of violations)
+  Avg Lateness: 108.58 s | Min: 108.58 s | Max: 108.58 s
+Tier 3 (>50%):               4 (57.14% of violations)
+  Avg Lateness: 210.20 s | Min: 192.47 s | Max: 234.39 s
+Vm    0 CPU Usage Mean:   50.9% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.51)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   98.6% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.99)
+Vm    1 CPU Usage Mean:    8.8% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.09)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   48.1% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.48)
+Vm    2 CPU Usage Mean:   31.3% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.31)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   42.6% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.43)
+Vm    3 CPU Usage Mean:   12.4% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.12)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   40.9% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.41)
+Vm    4 CPU Usage Mean:   21.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.21)
 Host  4 VMs: 1
 
 Total Host Power Consumption: 700 W
@@ -248,385 +110,367 @@ Violated Cloudlets for GA:
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 101 out of 249 cloudlets (40.56%)
-Average tardiness: 44.36 seconds
-Maximum tardiness: 141.23 seconds
-Total execution demand affected by violations: 11.58% of total
+Total SLA violations: 15 out of 233 cloudlets (6.44%)
+Average tardiness: 47.73 seconds
+Maximum tardiness: 167.36 seconds
+Total execution demand affected by violations: 1.95% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 31 (30.69% of violations)
-  Avg Lateness: 8.06 s | Min: 0.15 s | Max: 22.44 s
-Tier 2 (>10% and ≤50%):     49 (48.51% of violations)
-  Avg Lateness: 45.44 s | Min: 1.69 s | Max: 88.67 s
-Tier 3 (>50%):               21 (20.79% of violations)
-  Avg Lateness: 95.42 s | Min: 34.12 s | Max: 141.23 s
-Vm    0 CPU Usage Mean:  100.0% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 1.00)
+Tier 1 (≤10% over deadline): 9 (60.00% of violations)
+  Avg Lateness: 0.72 s | Min: 0.02 s | Max: 2.19 s
+Tier 2 (>10% and ≤50%):     4 (26.67% of violations)
+  Avg Lateness: 93.67 s | Min: 56.47 s | Max: 130.12 s
+Tier 3 (>50%):               2 (13.33% of violations)
+  Avg Lateness: 167.36 s | Min: 167.35 s | Max: 167.36 s
+Vm    0 CPU Usage Mean:   41.0% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.41)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   37.6% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.38)
+Vm    1 CPU Usage Mean:   49.5% | Power Consumption Mean:      161 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.50)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   74.9% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.75)
+Vm    2 CPU Usage Mean:   14.2% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.14)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   58.9% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.59)
+Vm    3 CPU Usage Mean:   15.6% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.16)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   42.9% | Power Consumption Mean:       75 W (Host Static Power: 72.0 W, Host Static Power by VM: 72.0 W, VM Relative CPU Utilization: 0.43)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 695 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for GA:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 131 out of 249 cloudlets (52.61%)
-Average tardiness: 49.10 seconds
-Maximum tardiness: 108.64 seconds
-Total execution demand affected by violations: 15.60% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 26 (19.85% of violations)
-  Avg Lateness: 7.02 s | Min: 0.17 s | Max: 21.57 s
-Tier 2 (>10% and ≤50%):     62 (47.33% of violations)
-  Avg Lateness: 49.46 s | Min: 3.28 s | Max: 90.83 s
-Tier 3 (>50%):               43 (32.82% of violations)
-  Avg Lateness: 74.02 s | Min: 6.70 s | Max: 108.64 s
-Vm    0 CPU Usage Mean:   68.1% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.68)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   64.3% | Power Consumption Mean:      164 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.64)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   74.6% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.75)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   82.5% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.82)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   60.8% | Power Consumption Mean:       77 W (Host Static Power: 72.0 W, Host Static Power by VM: 72.0 W, VM Relative CPU Utilization: 0.61)
+Vm    4 CPU Usage Mean:   19.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.19)
 Host  4 VMs: 1
 
 Total Host Power Consumption: 691 W
-SLA violations are not acceptable, stopping the algorithm.
 
 
 -----------------------------------------------------------------
-Violated Cloudlets for ACO:
+Violated Cloudlets for GA:
 -----------------------------------------------------------------
 
 
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 5 out of 249 cloudlets (2.01%)
-Average tardiness: 0.45 seconds
-Maximum tardiness: 1.16 seconds
-Total execution demand affected by violations: 0.23% of total
+Total SLA violations: 13 out of 233 cloudlets (5.58%)
+Average tardiness: 73.19 seconds
+Maximum tardiness: 214.36 seconds
+Total execution demand affected by violations: 0.83% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 5 (100.00% of violations)
-  Avg Lateness: 0.45 s | Min: 0.15 s | Max: 1.16 s
-Vm    0 CPU Usage Mean:    6.7% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.07)
+Tier 1 (≤10% over deadline): 8 (61.54% of violations)
+  Avg Lateness: 3.20 s | Min: 0.03 s | Max: 7.18 s
+Tier 3 (>50%):               5 (38.46% of violations)
+  Avg Lateness: 185.17 s | Min: 159.66 s | Max: 214.36 s
+Vm    0 CPU Usage Mean:   34.9% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.35)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:    6.7% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.07)
+Vm    1 CPU Usage Mean:   16.6% | Power Consumption Mean:      156 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.17)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:    5.3% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.05)
+Vm    2 CPU Usage Mean:   45.1% | Power Consumption Mean:      132 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.45)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:    7.6% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.08)
+Vm    3 CPU Usage Mean:   15.0% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.15)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   16.3% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.16)
 Host  4 VMs: 1
 
-Total Host Power Consumption: 700 W
+Total Host Power Consumption: 678 W
 
 
 -----------------------------------------------------------------
-Violated Cloudlets for ACO:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 15 out of 249 cloudlets (6.02%)
-Average tardiness: 64.69 seconds
-Maximum tardiness: 778.08 seconds
-Total execution demand affected by violations: 1.00% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 12 (80.00% of violations)
-  Avg Lateness: 3.65 s | Min: 0.02 s | Max: 9.45 s
-Tier 2 (>10% and ≤50%):     2 (13.33% of violations)
-  Avg Lateness: 74.25 s | Min: 70.85 s | Max: 77.65 s
-Tier 3 (>50%):               1 (6.67% of violations)
-  Avg Lateness: 778.08 s | Min: 778.08 s | Max: 778.08 s
-Vm    0 CPU Usage Mean:   11.9% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.12)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   11.0% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.11)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   11.9% | Power Consumption Mean:      128 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.12)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   23.8% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.24)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 688 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for ACO:
+Violated Cloudlets for GA:
 -----------------------------------------------------------------
 
 
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 4 out of 249 cloudlets (1.61%)
-Average tardiness: 0.46 seconds
-Maximum tardiness: 0.60 seconds
-Total execution demand affected by violations: 0.37% of total
+Total SLA violations: 22 out of 233 cloudlets (9.44%)
+Average tardiness: 70.87 seconds
+Maximum tardiness: 153.31 seconds
+Total execution demand affected by violations: 3.53% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 4 (100.00% of violations)
-  Avg Lateness: 0.46 s | Min: 0.36 s | Max: 0.60 s
-Vm    0 CPU Usage Mean:    6.1% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.06)
+Tier 1 (≤10% over deadline): 6 (27.27% of violations)
+  Avg Lateness: 2.28 s | Min: 0.06 s | Max: 8.64 s
+Tier 2 (>10% and ≤50%):     15 (68.18% of violations)
+  Avg Lateness: 92.81 s | Min: 32.18 s | Max: 123.84 s
+Tier 3 (>50%):               1 (4.55% of violations)
+  Avg Lateness: 153.31 s | Min: 153.31 s | Max: 153.31 s
+Vm    0 CPU Usage Mean:   32.4% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.32)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:    8.8% | Power Consumption Mean:      154 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.09)
+Vm    1 CPU Usage Mean:   48.3% | Power Consumption Mean:      161 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.48)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   13.3% | Power Consumption Mean:      128 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.13)
+Vm    2 CPU Usage Mean:   24.9% | Power Consumption Mean:      129 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.25)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   17.1% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.17)
+Vm    3 CPU Usage Mean:   19.2% | Power Consumption Mean:      101 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.19)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   15.6% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.16)
 Host  4 VMs: 1
 
 Total Host Power Consumption: 672 W
 
 
 -----------------------------------------------------------------
-Violated Cloudlets for ACO:
+Violated Cloudlets for GA:
 -----------------------------------------------------------------
 
 
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 5 out of 249 cloudlets (2.01%)
-Average tardiness: 0.67 seconds
-Maximum tardiness: 1.19 seconds
-Total execution demand affected by violations: 0.40% of total
+Total SLA violations: 10 out of 233 cloudlets (4.29%)
+Average tardiness: 136.64 seconds
+Maximum tardiness: 263.97 seconds
+Total execution demand affected by violations: 1.40% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 5 (100.00% of violations)
-  Avg Lateness: 0.67 s | Min: 0.25 s | Max: 1.19 s
-Vm    0 CPU Usage Mean:    4.4% | Power Consumption Mean:      181 W (Host Static Power: 180.0 W, Host Static Power by VM: 180.0 W, VM Relative CPU Utilization: 0.04)
+Tier 1 (≤10% over deadline): 4 (40.00% of violations)
+  Avg Lateness: 0.25 s | Min: 0.09 s | Max: 0.48 s
+Tier 2 (>10% and ≤50%):     1 (10.00% of violations)
+  Avg Lateness: 120.41 s | Min: 120.41 s | Max: 120.41 s
+Tier 3 (>50%):               5 (50.00% of violations)
+  Avg Lateness: 249.00 s | Min: 212.22 s | Max: 263.97 s
+Vm    0 CPU Usage Mean:   10.2% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.10)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:    8.6% | Power Consumption Mean:      154 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.09)
+Vm    1 CPU Usage Mean:   52.1% | Power Consumption Mean:      162 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.52)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:    9.6% | Power Consumption Mean:      127 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.10)
+Vm    2 CPU Usage Mean:   10.6% | Power Consumption Mean:      127 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.11)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:    5.7% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.06)
+Vm    3 CPU Usage Mean:   47.1% | Power Consumption Mean:      104 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.47)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   16.0% | Power Consumption Mean:       73 W (Host Static Power: 72.0 W, Host Static Power by VM: 72.0 W, VM Relative CPU Utilization: 0.16)
+Host  4 VMs: 1
+
+Total Host Power Consumption: 667 W
+
+
+-----------------------------------------------------------------
+Violated Cloudlets for GA:
+-----------------------------------------------------------------
+
+
+------------------------------- SLA VIOLATIONS -------------------------------
+
+------------------------------- SLA STATISTICS -------------------------------
+Total SLA violations: 16 out of 233 cloudlets (6.87%)
+Average tardiness: 100.63 seconds
+Maximum tardiness: 187.03 seconds
+Total execution demand affected by violations: 3.92% of total
+
+----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
+Tier 1 (≤10% over deadline): 5 (31.25% of violations)
+  Avg Lateness: 5.44 s | Min: 0.05 s | Max: 13.37 s
+Tier 2 (>10% and ≤50%):     5 (31.25% of violations)
+  Avg Lateness: 116.42 s | Min: 103.76 s | Max: 137.12 s
+Tier 3 (>50%):               6 (37.50% of violations)
+  Avg Lateness: 166.80 s | Min: 146.78 s | Max: 187.03 s
+Vm    0 CPU Usage Mean:   13.6% | Power Consumption Mean:      183 W (Host Static Power: 180.0 W, Host Static Power by VM: 180.0 W, VM Relative CPU Utilization: 0.14)
+Host  0 VMs: 1
+Vm    1 CPU Usage Mean:   45.6% | Power Consumption Mean:      161 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.46)
+Host  1 VMs: 1
+Vm    2 CPU Usage Mean:   44.1% | Power Consumption Mean:      132 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.44)
+Host  2 VMs: 1
+Vm    3 CPU Usage Mean:   45.3% | Power Consumption Mean:      104 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.45)
+Host  3 VMs: 1
+Vm    4 CPU Usage Mean:   20.1% | Power Consumption Mean:       74 W (Host Static Power: 72.0 W, Host Static Power by VM: 72.0 W, VM Relative CPU Utilization: 0.20)
 Host  4 VMs: 1
 
 Total Host Power Consumption: 653 W
 
 
 -----------------------------------------------------------------
-Violated Cloudlets for ACO:
+Violated Cloudlets for GA:
 -----------------------------------------------------------------
 
 
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 6 out of 249 cloudlets (2.41%)
-Average tardiness: 1.60 seconds
-Maximum tardiness: 6.21 seconds
-Total execution demand affected by violations: 0.34% of total
+Total SLA violations: 16 out of 233 cloudlets (6.87%)
+Average tardiness: 97.61 seconds
+Maximum tardiness: 204.74 seconds
+Total execution demand affected by violations: 3.56% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 4 (66.67% of violations)
-  Avg Lateness: 0.35 s | Min: 0.12 s | Max: 0.58 s
-Tier 2 (>10% and ≤50%):     2 (33.33% of violations)
-  Avg Lateness: 4.09 s | Min: 1.98 s | Max: 6.21 s
-Vm    0 CPU Usage Mean:    4.9% | Power Consumption Mean:      151 W (Host Static Power: 150.0 W, Host Static Power by VM: 150.0 W, VM Relative CPU Utilization: 0.05)
+Tier 1 (≤10% over deadline): 6 (37.50% of violations)
+  Avg Lateness: 0.38 s | Min: 0.01 s | Max: 0.91 s
+Tier 2 (>10% and ≤50%):     2 (12.50% of violations)
+  Avg Lateness: 65.21 s | Min: 62.74 s | Max: 67.68 s
+Tier 3 (>50%):               8 (50.00% of violations)
+  Avg Lateness: 178.63 s | Min: 116.15 s | Max: 204.74 s
+Vm    0 CPU Usage Mean:   44.9% | Power Consumption Mean:      163 W (Host Static Power: 150.0 W, Host Static Power by VM: 150.0 W, VM Relative CPU Utilization: 0.45)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:    7.1% | Power Consumption Mean:      154 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.07)
+Vm    1 CPU Usage Mean:   47.6% | Power Consumption Mean:      161 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.48)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:    8.7% | Power Consumption Mean:      127 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.09)
+Vm    2 CPU Usage Mean:   12.1% | Power Consumption Mean:      128 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.12)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:    9.7% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.10)
+Vm    3 CPU Usage Mean:   17.6% | Power Consumption Mean:      101 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.18)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   13.5% | Power Consumption Mean:       73 W (Host Static Power: 72.0 W, Host Static Power by VM: 72.0 W, VM Relative CPU Utilization: 0.13)
 Host  4 VMs: 1
 
-Total Host Power Consumption: 623 W
+Total Host Power Consumption: 626 W
 
 
 -----------------------------------------------------------------
-Violated Cloudlets for ACO:
+Violated Cloudlets for GA:
 -----------------------------------------------------------------
 
 
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 15 out of 249 cloudlets (6.02%)
-Average tardiness: 1.94 seconds
-Maximum tardiness: 6.19 seconds
-Total execution demand affected by violations: 0.86% of total
+Total SLA violations: 20 out of 233 cloudlets (8.58%)
+Average tardiness: 87.17 seconds
+Maximum tardiness: 209.48 seconds
+Total execution demand affected by violations: 2.72% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 10 (66.67% of violations)
-  Avg Lateness: 0.67 s | Min: 0.16 s | Max: 1.79 s
-Tier 2 (>10% and ≤50%):     5 (33.33% of violations)
-  Avg Lateness: 4.49 s | Min: 2.49 s | Max: 6.19 s
-Vm    0 CPU Usage Mean:    5.8% | Power Consumption Mean:      131 W (Host Static Power: 130.0 W, Host Static Power by VM: 130.0 W, VM Relative CPU Utilization: 0.06)
+Tier 1 (≤10% over deadline): 11 (55.00% of violations)
+  Avg Lateness: 2.64 s | Min: 0.01 s | Max: 11.06 s
+Tier 3 (>50%):               9 (45.00% of violations)
+  Avg Lateness: 190.48 s | Min: 140.90 s | Max: 209.48 s
+Vm    0 CPU Usage Mean:   42.1% | Power Consumption Mean:      163 W (Host Static Power: 150.0 W, Host Static Power by VM: 150.0 W, VM Relative CPU Utilization: 0.42)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:    9.5% | Power Consumption Mean:      155 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.10)
+Vm    1 CPU Usage Mean:   50.4% | Power Consumption Mean:      162 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.50)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   10.6% | Power Consumption Mean:      127 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.11)
+Vm    2 CPU Usage Mean:   13.2% | Power Consumption Mean:      108 W (Host Static Power: 105.0 W, Host Static Power by VM: 105.0 W, VM Relative CPU Utilization: 0.13)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   11.7% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.12)
+Vm    3 CPU Usage Mean:   14.1% | Power Consumption Mean:      101 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.14)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   25.7% | Power Consumption Mean:       74 W (Host Static Power: 72.0 W, Host Static Power by VM: 72.0 W, VM Relative CPU Utilization: 0.26)
 Host  4 VMs: 1
 
-Total Host Power Consumption: 603 W
+Total Host Power Consumption: 607 W
 
 
 -----------------------------------------------------------------
-Violated Cloudlets for ACO:
+Violated Cloudlets for GA:
 -----------------------------------------------------------------
 
 
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 6 out of 249 cloudlets (2.41%)
-Average tardiness: 5.89 seconds
-Maximum tardiness: 17.71 seconds
-Total execution demand affected by violations: 0.49% of total
+Total SLA violations: 13 out of 233 cloudlets (5.58%)
+Average tardiness: 92.19 seconds
+Maximum tardiness: 254.43 seconds
+Total execution demand affected by violations: 1.56% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 5 (83.33% of violations)
-  Avg Lateness: 3.52 s | Min: 0.18 s | Max: 15.53 s
-Tier 2 (>10% and ≤50%):     1 (16.67% of violations)
-  Avg Lateness: 17.71 s | Min: 17.71 s | Max: 17.71 s
-Vm    0 CPU Usage Mean:   10.9% | Power Consumption Mean:      103 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.11)
+Tier 1 (≤10% over deadline): 6 (46.15% of violations)
+  Avg Lateness: 1.55 s | Min: 0.06 s | Max: 6.23 s
+Tier 2 (>10% and ≤50%):     1 (7.69% of violations)
+  Avg Lateness: 108.01 s | Min: 108.01 s | Max: 108.01 s
+Tier 3 (>50%):               6 (46.15% of violations)
+  Avg Lateness: 180.18 s | Min: 118.38 s | Max: 254.43 s
+Vm    0 CPU Usage Mean:   54.9% | Power Consumption Mean:      166 W (Host Static Power: 150.0 W, Host Static Power by VM: 150.0 W, VM Relative CPU Utilization: 0.55)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:    7.8% | Power Consumption Mean:      154 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.08)
+Vm    1 CPU Usage Mean:   13.8% | Power Consumption Mean:      155 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.14)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:    4.9% | Power Consumption Mean:      127 W (Host Static Power: 126.0 W, Host Static Power by VM: 126.0 W, VM Relative CPU Utilization: 0.05)
+Vm    2 CPU Usage Mean:   16.0% | Power Consumption Mean:       93 W (Host Static Power: 91.0 W, Host Static Power by VM: 91.0 W, VM Relative CPU Utilization: 0.16)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   11.8% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.12)
+Vm    3 CPU Usage Mean:   52.5% | Power Consumption Mean:      105 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.52)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   13.6% | Power Consumption Mean:       73 W (Host Static Power: 72.0 W, Host Static Power by VM: 72.0 W, VM Relative CPU Utilization: 0.14)
 Host  4 VMs: 1
 
-Total Host Power Consumption: 574 W
+Total Host Power Consumption: 593 W
 
 
 -----------------------------------------------------------------
-Violated Cloudlets for ACO:
+Violated Cloudlets for GA:
 -----------------------------------------------------------------
 
 
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 9 out of 249 cloudlets (3.61%)
-Average tardiness: 8.10 seconds
-Maximum tardiness: 22.39 seconds
-Total execution demand affected by violations: 0.52% of total
+Total SLA violations: 15 out of 233 cloudlets (6.44%)
+Average tardiness: 117.01 seconds
+Maximum tardiness: 208.69 seconds
+Total execution demand affected by violations: 3.14% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 5 (55.56% of violations)
-  Avg Lateness: 3.47 s | Min: 0.04 s | Max: 8.50 s
-Tier 2 (>10% and ≤50%):     2 (22.22% of violations)
-  Avg Lateness: 13.63 s | Min: 4.87 s | Max: 22.39 s
-Tier 3 (>50%):               2 (22.22% of violations)
-  Avg Lateness: 14.13 s | Min: 13.93 s | Max: 14.34 s
-Vm    0 CPU Usage Mean:   13.9% | Power Consumption Mean:      104 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.14)
+Tier 1 (≤10% over deadline): 4 (26.67% of violations)
+  Avg Lateness: 3.26 s | Min: 1.05 s | Max: 7.66 s
+Tier 2 (>10% and ≤50%):     3 (20.00% of violations)
+  Avg Lateness: 100.01 s | Min: 68.56 s | Max: 146.43 s
+Tier 3 (>50%):               8 (53.33% of violations)
+  Avg Lateness: 180.26 s | Min: 153.80 s | Max: 208.69 s
+Vm    0 CPU Usage Mean:   47.2% | Power Consumption Mean:      164 W (Host Static Power: 150.0 W, Host Static Power by VM: 150.0 W, VM Relative CPU Utilization: 0.47)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:    9.2% | Power Consumption Mean:      155 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.09)
+Vm    1 CPU Usage Mean:   44.2% | Power Consumption Mean:      161 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.44)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:    4.6% | Power Consumption Mean:      106 W (Host Static Power: 105.0 W, Host Static Power by VM: 105.0 W, VM Relative CPU Utilization: 0.05)
+Vm    2 CPU Usage Mean:   16.3% | Power Consumption Mean:       93 W (Host Static Power: 91.0 W, Host Static Power by VM: 91.0 W, VM Relative CPU Utilization: 0.16)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:    8.1% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.08)
+Vm    3 CPU Usage Mean:   13.3% | Power Consumption Mean:      100 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.13)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   24.8% | Power Consumption Mean:       63 W (Host Static Power: 60.0 W, Host Static Power by VM: 60.0 W, VM Relative CPU Utilization: 0.25)
+Host  4 VMs: 1
+
+Total Host Power Consumption: 581 W
+
+
+-----------------------------------------------------------------
+Violated Cloudlets for GA:
+-----------------------------------------------------------------
+
+
+------------------------------- SLA VIOLATIONS -------------------------------
+
+------------------------------- SLA STATISTICS -------------------------------
+Total SLA violations: 20 out of 233 cloudlets (8.58%)
+Average tardiness: 147.25 seconds
+Maximum tardiness: 423.88 seconds
+Total execution demand affected by violations: 4.74% of total
+
+----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
+Tier 1 (≤10% over deadline): 10 (50.00% of violations)
+  Avg Lateness: 1.78 s | Min: 0.02 s | Max: 6.80 s
+Tier 2 (>10% and ≤50%):     2 (10.00% of violations)
+  Avg Lateness: 75.93 s | Min: 26.17 s | Max: 125.70 s
+Tier 3 (>50%):               8 (40.00% of violations)
+  Avg Lateness: 346.92 s | Min: 168.82 s | Max: 423.88 s
+Vm    0 CPU Usage Mean:   13.5% | Power Consumption Mean:      154 W (Host Static Power: 150.0 W, Host Static Power by VM: 150.0 W, VM Relative CPU Utilization: 0.13)
+Host  0 VMs: 1
+Vm    1 CPU Usage Mean:   60.4% | Power Consumption Mean:      163 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.60)
+Host  1 VMs: 1
+Vm    2 CPU Usage Mean:   12.1% | Power Consumption Mean:       93 W (Host Static Power: 91.0 W, Host Static Power by VM: 91.0 W, VM Relative CPU Utilization: 0.12)
+Host  2 VMs: 1
+Vm    3 CPU Usage Mean:   10.8% | Power Consumption Mean:       84 W (Host Static Power: 82.5 W, Host Static Power by VM: 82.5 W, VM Relative CPU Utilization: 0.11)
+Host  3 VMs: 1
+Vm    4 CPU Usage Mean:    9.3% | Power Consumption Mean:       61 W (Host Static Power: 60.0 W, Host Static Power by VM: 60.0 W, VM Relative CPU Utilization: 0.09)
 Host  4 VMs: 1
 
 Total Host Power Consumption: 555 W
 
 
 -----------------------------------------------------------------
-Violated Cloudlets for ACO:
+Violated Cloudlets for GA:
 -----------------------------------------------------------------
 
 
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 10 out of 249 cloudlets (4.02%)
-Average tardiness: 3.91 seconds
-Maximum tardiness: 11.18 seconds
-Total execution demand affected by violations: 0.71% of total
+Total SLA violations: 28 out of 233 cloudlets (12.02%)
+Average tardiness: 90.33 seconds
+Maximum tardiness: 185.97 seconds
+Total execution demand affected by violations: 4.44% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 7 (70.00% of violations)
-  Avg Lateness: 3.94 s | Min: 0.19 s | Max: 11.18 s
-Tier 2 (>10% and ≤50%):     3 (30.00% of violations)
-  Avg Lateness: 3.84 s | Min: 2.23 s | Max: 6.07 s
-Vm    0 CPU Usage Mean:   10.2% | Power Consumption Mean:      103 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.10)
+Tier 1 (≤10% over deadline): 12 (42.86% of violations)
+  Avg Lateness: 6.68 s | Min: 0.05 s | Max: 22.27 s
+Tier 2 (>10% and ≤50%):     2 (7.14% of violations)
+  Avg Lateness: 112.43 s | Min: 96.77 s | Max: 128.09 s
+Tier 3 (>50%):               14 (50.00% of violations)
+  Avg Lateness: 158.88 s | Min: 126.10 s | Max: 185.97 s
+Vm    0 CPU Usage Mean:   42.6% | Power Consumption Mean:      163 W (Host Static Power: 150.0 W, Host Static Power by VM: 150.0 W, VM Relative CPU Utilization: 0.43)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:    9.0% | Power Consumption Mean:      155 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.09)
+Vm    1 CPU Usage Mean:   48.5% | Power Consumption Mean:      161 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.48)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:    9.1% | Power Consumption Mean:       92 W (Host Static Power: 91.0 W, Host Static Power by VM: 91.0 W, VM Relative CPU Utilization: 0.09)
+Vm    2 CPU Usage Mean:   14.6% | Power Consumption Mean:       93 W (Host Static Power: 91.0 W, Host Static Power by VM: 91.0 W, VM Relative CPU Utilization: 0.15)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:    8.3% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.08)
+Vm    3 CPU Usage Mean:   42.7% | Power Consumption Mean:       90 W (Host Static Power: 82.5 W, Host Static Power by VM: 82.5 W, VM Relative CPU Utilization: 0.43)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   17.1% | Power Consumption Mean:       53 W (Host Static Power: 52.0 W, Host Static Power by VM: 52.0 W, VM Relative CPU Utilization: 0.17)
 Host  4 VMs: 1
 
-Total Host Power Consumption: 540 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for ACO:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 93 out of 249 cloudlets (37.35%)
-Average tardiness: 53.71 seconds
-Maximum tardiness: 325.47 seconds
-Total execution demand affected by violations: 8.28% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 47 (50.54% of violations)
-  Avg Lateness: 5.90 s | Min: 0.19 s | Max: 20.51 s
-Tier 2 (>10% and ≤50%):     20 (21.51% of violations)
-  Avg Lateness: 46.71 s | Min: 2.92 s | Max: 110.11 s
-Tier 3 (>50%):               26 (27.96% of violations)
-  Avg Lateness: 145.52 s | Min: 89.55 s | Max: 325.47 s
-Vm    0 CPU Usage Mean:   36.2% | Power Consumption Mean:      111 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.36)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   34.6% | Power Consumption Mean:      159 W (Host Static Power: 153.0 W, Host Static Power by VM: 153.0 W, VM Relative CPU Utilization: 0.35)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   58.2% | Power Consumption Mean:       99 W (Host Static Power: 91.0 W, Host Static Power by VM: 91.0 W, VM Relative CPU Utilization: 0.58)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   36.7% | Power Consumption Mean:      103 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.37)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 552 W
+Total Host Power Consumption: 560 W
+SLA violations are not acceptable, stopping the algorithm.
 
 
 -----------------------------------------------------------------
@@ -637,30 +481,26 @@ Violated Cloudlets for ACO:
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 20 out of 249 cloudlets (8.03%)
-Average tardiness: 22.30 seconds
-Maximum tardiness: 235.27 seconds
-Total execution demand affected by violations: 1.34% of total
+Total SLA violations: 1 out of 233 cloudlets (0.43%)
+Average tardiness: 0.39 seconds
+Maximum tardiness: 0.39 seconds
+Total execution demand affected by violations: 0.19% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 9 (45.00% of violations)
-  Avg Lateness: 1.49 s | Min: 0.02 s | Max: 8.65 s
-Tier 2 (>10% and ≤50%):     7 (35.00% of violations)
-  Avg Lateness: 22.39 s | Min: 1.77 s | Max: 34.10 s
-Tier 3 (>50%):               4 (20.00% of violations)
-  Avg Lateness: 68.95 s | Min: 10.19 s | Max: 235.27 s
-Vm    0 CPU Usage Mean:    9.6% | Power Consumption Mean:      103 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.10)
+Tier 1 (≤10% over deadline): 1 (100.00% of violations)
+  Avg Lateness: 0.39 s | Min: 0.39 s | Max: 0.39 s
+Vm    0 CPU Usage Mean:    6.8% | Power Consumption Mean:      200 W (Host Static Power: 200.0 W, Host Static Power by VM: 200.0 W, VM Relative CPU Utilization: 0.07)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:    6.9% | Power Consumption Mean:      129 W (Host Static Power: 127.5 W, Host Static Power by VM: 127.5 W, VM Relative CPU Utilization: 0.07)
+Vm    1 CPU Usage Mean:   11.7% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.12)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   11.2% | Power Consumption Mean:       93 W (Host Static Power: 91.0 W, Host Static Power by VM: 91.0 W, VM Relative CPU Utilization: 0.11)
+Vm    2 CPU Usage Mean:   53.9% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.54)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   11.7% | Power Consumption Mean:      100 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.12)
+Vm    3 CPU Usage Mean:   42.0% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.42)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   28.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.28)
 Host  4 VMs: 1
 
-Total Host Power Consumption: 505 W
+Total Host Power Consumption: 700 W
 
 
 -----------------------------------------------------------------
@@ -671,28 +511,26 @@ Violated Cloudlets for ACO:
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 14 out of 249 cloudlets (5.62%)
-Average tardiness: 3.07 seconds
-Maximum tardiness: 21.27 seconds
-Total execution demand affected by violations: 1.57% of total
+Total SLA violations: 4 out of 233 cloudlets (1.72%)
+Average tardiness: 0.70 seconds
+Maximum tardiness: 1.22 seconds
+Total execution demand affected by violations: 0.24% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 12 (85.71% of violations)
-  Avg Lateness: 0.66 s | Min: 0.02 s | Max: 1.53 s
-Tier 3 (>50%):               2 (14.29% of violations)
-  Avg Lateness: 17.48 s | Min: 13.69 s | Max: 21.27 s
-Vm    0 CPU Usage Mean:   13.7% | Power Consumption Mean:      104 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.14)
+Tier 1 (≤10% over deadline): 4 (100.00% of violations)
+  Avg Lateness: 0.70 s | Min: 0.00 s | Max: 1.22 s
+Vm    0 CPU Usage Mean:    8.9% | Power Consumption Mean:      182 W (Host Static Power: 180.0 W, Host Static Power by VM: 180.0 W, VM Relative CPU Utilization: 0.09)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:    8.4% | Power Consumption Mean:      112 W (Host Static Power: 110.5 W, Host Static Power by VM: 110.5 W, VM Relative CPU Utilization: 0.08)
+Vm    1 CPU Usage Mean:   10.5% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.11)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   14.5% | Power Consumption Mean:       93 W (Host Static Power: 91.0 W, Host Static Power by VM: 91.0 W, VM Relative CPU Utilization: 0.15)
+Vm    2 CPU Usage Mean:   40.9% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.41)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   11.0% | Power Consumption Mean:      100 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.11)
+Vm    3 CPU Usage Mean:   47.9% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.48)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   56.4% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.56)
 Host  4 VMs: 1
 
-Total Host Power Consumption: 489 W
+Total Host Power Consumption: 682 W
 
 
 -----------------------------------------------------------------
@@ -703,30 +541,28 @@ Violated Cloudlets for ACO:
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 19 out of 249 cloudlets (7.63%)
-Average tardiness: 15.36 seconds
-Maximum tardiness: 227.00 seconds
-Total execution demand affected by violations: 1.24% of total
+Total SLA violations: 11 out of 233 cloudlets (4.72%)
+Average tardiness: 11.66 seconds
+Maximum tardiness: 89.58 seconds
+Total execution demand affected by violations: 1.40% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 13 (68.42% of violations)
-  Avg Lateness: 0.96 s | Min: 0.04 s | Max: 5.97 s
-Tier 2 (>10% and ≤50%):     3 (15.79% of violations)
-  Avg Lateness: 10.55 s | Min: 4.90 s | Max: 21.18 s
-Tier 3 (>50%):               3 (15.79% of violations)
-  Avg Lateness: 82.58 s | Min: 8.91 s | Max: 227.00 s
-Vm    0 CPU Usage Mean:   12.8% | Power Consumption Mean:      104 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.13)
+Tier 1 (≤10% over deadline): 10 (90.91% of violations)
+  Avg Lateness: 3.86 s | Min: 0.50 s | Max: 20.71 s
+Tier 2 (>10% and ≤50%):     1 (9.09% of violations)
+  Avg Lateness: 89.58 s | Min: 89.58 s | Max: 89.58 s
+Vm    0 CPU Usage Mean:   14.0% | Power Consumption Mean:      154 W (Host Static Power: 150.0 W, Host Static Power by VM: 150.0 W, VM Relative CPU Utilization: 0.14)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   13.1% | Power Consumption Mean:       88 W (Host Static Power: 85.0 W, Host Static Power by VM: 85.0 W, VM Relative CPU Utilization: 0.13)
+Vm    1 CPU Usage Mean:   16.2% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.16)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   11.2% | Power Consumption Mean:       93 W (Host Static Power: 91.0 W, Host Static Power by VM: 91.0 W, VM Relative CPU Utilization: 0.11)
+Vm    2 CPU Usage Mean:   22.1% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.22)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:    9.0% | Power Consumption Mean:      100 W (Host Static Power: 99.0 W, Host Static Power by VM: 99.0 W, VM Relative CPU Utilization: 0.09)
+Vm    3 CPU Usage Mean:   30.5% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.30)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   72.5% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.72)
 Host  4 VMs: 1
 
-Total Host Power Consumption: 465 W
+Total Host Power Consumption: 654 W
 
 
 -----------------------------------------------------------------
@@ -737,266 +573,26 @@ Violated Cloudlets for ACO:
 ------------------------------- SLA VIOLATIONS -------------------------------
 
 ------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 27 out of 249 cloudlets (10.84%)
-Average tardiness: 57.27 seconds
-Maximum tardiness: 1150.85 seconds
-Total execution demand affected by violations: 1.90% of total
+Total SLA violations: 37 out of 233 cloudlets (15.88%)
+Average tardiness: 17.52 seconds
+Maximum tardiness: 94.49 seconds
+Total execution demand affected by violations: 3.92% of total
 
 ----------------------- SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 20 (74.07% of violations)
-  Avg Lateness: 2.42 s | Min: 0.17 s | Max: 13.65 s
-Tier 2 (>10% and ≤50%):     2 (7.41% of violations)
-  Avg Lateness: 30.54 s | Min: 28.61 s | Max: 32.48 s
-Tier 3 (>50%):               5 (18.52% of violations)
-  Avg Lateness: 287.37 s | Min: 14.92 s | Max: 1150.85 s
-Vm    0 CPU Usage Mean:   12.9% | Power Consumption Mean:      104 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.13)
+Tier 1 (≤10% over deadline): 26 (70.27% of violations)
+  Avg Lateness: 8.61 s | Min: 0.09 s | Max: 23.31 s
+Tier 2 (>10% and ≤50%):     11 (29.73% of violations)
+  Avg Lateness: 38.57 s | Min: 2.55 s | Max: 94.49 s
+Vm    0 CPU Usage Mean:   45.9% | Power Consumption Mean:      139 W (Host Static Power: 130.0 W, Host Static Power by VM: 130.0 W, VM Relative CPU Utilization: 0.46)
 Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   13.7% | Power Consumption Mean:       88 W (Host Static Power: 85.0 W, Host Static Power by VM: 85.0 W, VM Relative CPU Utilization: 0.14)
+Vm    1 CPU Usage Mean:   12.3% | Power Consumption Mean:      170 W (Host Static Power: 170.0 W, Host Static Power by VM: 170.0 W, VM Relative CPU Utilization: 0.12)
 Host  1 VMs: 1
-Vm    2 CPU Usage Mean:    8.3% | Power Consumption Mean:       92 W (Host Static Power: 91.0 W, Host Static Power by VM: 91.0 W, VM Relative CPU Utilization: 0.08)
+Vm    2 CPU Usage Mean:   23.1% | Power Consumption Mean:      140 W (Host Static Power: 140.0 W, Host Static Power by VM: 140.0 W, VM Relative CPU Utilization: 0.23)
 Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   12.0% | Power Consumption Mean:       84 W (Host Static Power: 82.5 W, Host Static Power by VM: 82.5 W, VM Relative CPU Utilization: 0.12)
+Vm    3 CPU Usage Mean:   20.2% | Power Consumption Mean:      110 W (Host Static Power: 110.0 W, Host Static Power by VM: 110.0 W, VM Relative CPU Utilization: 0.20)
 Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   99.9% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
+Vm    4 CPU Usage Mean:   40.4% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.40)
 Host  4 VMs: 1
 
-Total Host Power Consumption: 449 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for ACO:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 18 out of 249 cloudlets (7.23%)
-Average tardiness: 156.26 seconds
-Maximum tardiness: 1148.54 seconds
-Total execution demand affected by violations: 1.07% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 11 (61.11% of violations)
-  Avg Lateness: 1.81 s | Min: 0.22 s | Max: 5.71 s
-Tier 2 (>10% and ≤50%):     1 (5.56% of violations)
-  Avg Lateness: 3.72 s | Min: 3.72 s | Max: 3.72 s
-Tier 3 (>50%):               6 (33.33% of violations)
-  Avg Lateness: 464.85 s | Min: 9.01 s | Max: 1148.54 s
-Vm    0 CPU Usage Mean:   11.1% | Power Consumption Mean:      103 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.11)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   15.5% | Power Consumption Mean:       89 W (Host Static Power: 85.0 W, Host Static Power by VM: 85.0 W, VM Relative CPU Utilization: 0.15)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   14.2% | Power Consumption Mean:       73 W (Host Static Power: 70.0 W, Host Static Power by VM: 70.0 W, VM Relative CPU Utilization: 0.14)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   10.9% | Power Consumption Mean:       84 W (Host Static Power: 82.5 W, Host Static Power by VM: 82.5 W, VM Relative CPU Utilization: 0.11)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   99.9% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 430 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for ACO:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 54 out of 249 cloudlets (21.69%)
-Average tardiness: 11.54 seconds
-Maximum tardiness: 235.08 seconds
-Total execution demand affected by violations: 4.93% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 40 (74.07% of violations)
-  Avg Lateness: 2.16 s | Min: 0.03 s | Max: 8.07 s
-Tier 2 (>10% and ≤50%):     10 (18.52% of violations)
-  Avg Lateness: 26.76 s | Min: 5.56 s | Max: 42.23 s
-Tier 3 (>50%):               4 (7.41% of violations)
-  Avg Lateness: 67.30 s | Min: 8.86 s | Max: 235.08 s
-Vm    0 CPU Usage Mean:   12.7% | Power Consumption Mean:      104 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.13)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   10.9% | Power Consumption Mean:       88 W (Host Static Power: 85.0 W, Host Static Power by VM: 85.0 W, VM Relative CPU Utilization: 0.11)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   14.7% | Power Consumption Mean:       73 W (Host Static Power: 70.0 W, Host Static Power by VM: 70.0 W, VM Relative CPU Utilization: 0.15)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   15.7% | Power Consumption Mean:       73 W (Host Static Power: 71.5 W, Host Static Power by VM: 71.5 W, VM Relative CPU Utilization: 0.16)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 418 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for ACO:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 36 out of 249 cloudlets (14.46%)
-Average tardiness: 10.38 seconds
-Maximum tardiness: 235.12 seconds
-Total execution demand affected by violations: 2.32% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 29 (80.56% of violations)
-  Avg Lateness: 2.47 s | Min: 0.04 s | Max: 12.75 s
-Tier 2 (>10% and ≤50%):     2 (5.56% of violations)
-  Avg Lateness: 2.85 s | Min: 2.28 s | Max: 3.41 s
-Tier 3 (>50%):               5 (13.89% of violations)
-  Avg Lateness: 59.24 s | Min: 12.05 s | Max: 235.12 s
-Vm    0 CPU Usage Mean:   11.9% | Power Consumption Mean:      104 W (Host Static Power: 100.0 W, Host Static Power by VM: 100.0 W, VM Relative CPU Utilization: 0.12)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   14.0% | Power Consumption Mean:       63 W (Host Static Power: 59.5 W, Host Static Power by VM: 59.5 W, VM Relative CPU Utilization: 0.14)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   18.1% | Power Consumption Mean:       74 W (Host Static Power: 70.0 W, Host Static Power by VM: 70.0 W, VM Relative CPU Utilization: 0.18)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   13.9% | Power Consumption Mean:       73 W (Host Static Power: 71.5 W, Host Static Power by VM: 71.5 W, VM Relative CPU Utilization: 0.14)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:  100.0% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 393 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for ACO:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 94 out of 249 cloudlets (37.75%)
-Average tardiness: 62.77 seconds
-Maximum tardiness: 1010.99 seconds
-Total execution demand affected by violations: 8.39% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 58 (61.70% of violations)
-  Avg Lateness: 4.62 s | Min: 0.02 s | Max: 23.40 s
-Tier 2 (>10% and ≤50%):     19 (20.21% of violations)
-  Avg Lateness: 52.49 s | Min: 2.06 s | Max: 103.73 s
-Tier 3 (>50%):               17 (18.09% of violations)
-  Avg Lateness: 272.66 s | Min: 13.17 s | Max: 1010.99 s
-Vm    0 CPU Usage Mean:   19.7% | Power Consumption Mean:       76 W (Host Static Power: 70.0 W, Host Static Power by VM: 70.0 W, VM Relative CPU Utilization: 0.20)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   21.7% | Power Consumption Mean:       65 W (Host Static Power: 59.5 W, Host Static Power by VM: 59.5 W, VM Relative CPU Utilization: 0.22)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   18.4% | Power Consumption Mean:       74 W (Host Static Power: 70.0 W, Host Static Power by VM: 70.0 W, VM Relative CPU Utilization: 0.18)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   19.5% | Power Consumption Mean:       74 W (Host Static Power: 71.5 W, Host Static Power by VM: 71.5 W, VM Relative CPU Utilization: 0.20)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   99.9% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 368 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for ACO:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 46 out of 249 cloudlets (18.47%)
-Average tardiness: 117.49 seconds
-Maximum tardiness: 1147.62 seconds
-Total execution demand affected by violations: 3.35% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 27 (58.70% of violations)
-  Avg Lateness: 3.15 s | Min: 0.20 s | Max: 13.77 s
-Tier 2 (>10% and ≤50%):     5 (10.87% of violations)
-  Avg Lateness: 5.40 s | Min: 2.62 s | Max: 8.47 s
-Tier 3 (>50%):               14 (30.43% of violations)
-  Avg Lateness: 378.05 s | Min: 6.43 s | Max: 1147.62 s
-Vm    0 CPU Usage Mean:   15.3% | Power Consumption Mean:       75 W (Host Static Power: 70.0 W, Host Static Power by VM: 70.0 W, VM Relative CPU Utilization: 0.15)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   16.5% | Power Consumption Mean:       64 W (Host Static Power: 59.5 W, Host Static Power by VM: 59.5 W, VM Relative CPU Utilization: 0.17)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   14.3% | Power Consumption Mean:       52 W (Host Static Power: 49.0 W, Host Static Power by VM: 49.0 W, VM Relative CPU Utilization: 0.14)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   17.5% | Power Consumption Mean:       73 W (Host Static Power: 71.5 W, Host Static Power by VM: 71.5 W, VM Relative CPU Utilization: 0.18)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   99.8% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 344 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for ACO:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 116 out of 249 cloudlets (46.59%)
-Average tardiness: 53.52 seconds
-Maximum tardiness: 689.57 seconds
-Total execution demand affected by violations: 11.40% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 60 (51.72% of violations)
-  Avg Lateness: 7.88 s | Min: 0.17 s | Max: 25.46 s
-Tier 2 (>10% and ≤50%):     34 (29.31% of violations)
-  Avg Lateness: 26.51 s | Min: 4.37 s | Max: 56.61 s
-Tier 3 (>50%):               22 (18.97% of violations)
-  Avg Lateness: 219.75 s | Min: 11.89 s | Max: 689.57 s
-Vm    0 CPU Usage Mean:   34.9% | Power Consumption Mean:       80 W (Host Static Power: 70.0 W, Host Static Power by VM: 70.0 W, VM Relative CPU Utilization: 0.35)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   80.2% | Power Consumption Mean:       80 W (Host Static Power: 59.5 W, Host Static Power by VM: 59.5 W, VM Relative CPU Utilization: 0.80)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   26.6% | Power Consumption Mean:       44 W (Host Static Power: 42.0 W, Host Static Power by VM: 42.0 W, VM Relative CPU Utilization: 0.27)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   28.3% | Power Consumption Mean:       75 W (Host Static Power: 71.5 W, Host Static Power by VM: 71.5 W, VM Relative CPU Utilization: 0.28)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   99.9% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 1.00)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 359 W
-
-
------------------------------------------------------------------
-Violated Cloudlets for ACO:
------------------------------------------------------------------
-
-
-------------------------------- SLA VIOLATIONS -------------------------------
-
-------------------------------- SLA STATISTICS -------------------------------
-Total SLA violations: 166 out of 249 cloudlets (66.67%)
-Average tardiness: 232.48 seconds
-Maximum tardiness: 568.72 seconds
-Total execution demand affected by violations: 19.86% of total
-
------------------------ SLA VIOLATION SEVERITY TIERS ------------------------
-Tier 1 (≤10% over deadline): 18 (10.84% of violations)
-  Avg Lateness: 1.98 s | Min: 0.22 s | Max: 5.44 s
-Tier 2 (>10% and ≤50%):     13 (7.83% of violations)
-  Avg Lateness: 69.83 s | Min: 2.71 s | Max: 146.81 s
-Tier 3 (>50%):               135 (81.33% of violations)
-  Avg Lateness: 278.88 s | Min: 8.69 s | Max: 568.72 s
-Vm    0 CPU Usage Mean:   39.8% | Power Consumption Mean:       82 W (Host Static Power: 70.0 W, Host Static Power by VM: 70.0 W, VM Relative CPU Utilization: 0.40)
-Host  0 VMs: 1
-Vm    1 CPU Usage Mean:   56.5% | Power Consumption Mean:       74 W (Host Static Power: 59.5 W, Host Static Power by VM: 59.5 W, VM Relative CPU Utilization: 0.56)
-Host  1 VMs: 1
-Vm    2 CPU Usage Mean:   96.2% | Power Consumption Mean:       42 W (Host Static Power: 35.0 W, Host Static Power by VM: 35.0 W, VM Relative CPU Utilization: 0.96)
-Host  2 VMs: 1
-Vm    3 CPU Usage Mean:   49.6% | Power Consumption Mean:       77 W (Host Static Power: 71.5 W, Host Static Power by VM: 71.5 W, VM Relative CPU Utilization: 0.50)
-Host  3 VMs: 1
-Vm    4 CPU Usage Mean:   59.2% | Power Consumption Mean:       80 W (Host Static Power: 80.0 W, Host Static Power by VM: 80.0 W, VM Relative CPU Utilization: 0.59)
-Host  4 VMs: 1
-
-Total Host Power Consumption: 355 W
+Total Host Power Consumption: 639 W
 SLA violations are not acceptable, stopping the algorithm.

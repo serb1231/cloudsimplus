@@ -22,6 +22,8 @@ import static java.util.Comparator.comparingLong;
 
 public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
 
+    private static final double PERCENTAGE_OF_SLA_VIOLATIONS_NOT_ACCEPTABLE = 0.1; // 10% of SLA violations are not acceptable
+
     public static void main(String[] args) {
         Log.setLevel(Level.OFF);
         new CompareAlgorithms().RunCompareAlgorithms();
@@ -129,7 +131,7 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
                         nrOfSlaViolations++;
                 }
             }
-            if (nrOfSlaViolations >= result.cloudletFinishedList().size() / 2) {
+            if (nrOfSlaViolations >= result.cloudletFinishedList().size() * PERCENTAGE_OF_SLA_VIOLATIONS_NOT_ACCEPTABLE) {
                 System.out.println("SLA violations are not acceptable, stopping the algorithm.");
                 return result; // Return the result if SLA violations are not acceptable
             } else {
