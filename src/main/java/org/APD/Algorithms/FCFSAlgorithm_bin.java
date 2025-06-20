@@ -90,7 +90,7 @@ public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
 
         simulation.start();
 
-        return new AlgorithmResult(getName(),
+        return new AlgorithmResult("FCFS",
                 cloudletList,
                 hostList,
                 vmList,

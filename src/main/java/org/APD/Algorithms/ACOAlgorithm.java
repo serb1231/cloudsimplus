@@ -68,7 +68,7 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
         algorithmACO();
 
-        return new AlgorithmResult(getName(),
+        return new AlgorithmResult("ACO",
                 cloudletList,
                 hostList,
                 vmList,

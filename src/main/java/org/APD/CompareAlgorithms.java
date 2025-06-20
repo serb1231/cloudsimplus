@@ -8,6 +8,7 @@ import org.APD.PowerModels.PowerModelPstateProcessor_2GHz_Via_C7_M;
 import org.cloudsimplus.cloudlets.Cloudlet;
 import org.cloudsimplus.hosts.Host;
 import org.cloudsimplus.hosts.HostSimple;
+
 import org.cloudsimplus.vms.Vm;
 import org.cloudsimplus.util.Log;
 import java.io.File;
@@ -16,109 +17,81 @@ import java.io.PrintStream;
 import org.APD.Algorithms.SchedulingAlgorithm;
 import org.cloudsimplus.vms.VmResourceStats;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.List;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Comparator.comparingLong;
 
 public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
 
-    private static final double PERCENTAGE_OF_SLA_VIOLATIONS_NOT_ACCEPTABLE = 0.1; // 10% of SLA violations are not acceptable
+    private static final double PERCENTAGE_OF_SLA_VIOLATIONS_NOT_ACCEPTABLE = 0.5; // 10% of SLA violations are not acceptable
 
     public static void main(String[] args) {
         Log.setLevel(Level.OFF);
-        new CompareAlgorithms().RunCompareAlgorithms();
+        new CompareAlgorithms().RunCompareAlgorithms(args);
     }
 
-    public void RunCompareAlgorithms() {
-        try {
-            PrintStream fileOut = new PrintStream(new File("algorithm_output.txt"));
-            System.setOut(fileOut);  // Redirect console output to file
+    public void RunCompareAlgorithms(String[] args) {
+        try (
+                PrintStream fileOut = new PrintStream("algorithm_output.txt")
+        ) {
+            System.setOut(fileOut); // All log output goes here
 
-        PowerModelPStateProcessor currentPowerModel = new PowerModelPstateProcessor_2GHz_Via_C7_M(0);
-        PowerModelPStateProcessor.PerformanceState[] performanceStates = currentPowerModel.getPossiblePerformanceStates();
+            // Define where to write the CSV summary
+            Path csvPath = Paths.get(args.length > 0 ? args[0] : "sla_summary.csv");
 
-        List<DeadlineCloudlet> cloudletListInitial = createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs();
+            PowerModelPStateProcessor currentPowerModel = new PowerModelPstateProcessor_2GHz_Via_C7_M(0);
+            PowerModelPStateProcessor.PerformanceState[] performanceStates = currentPowerModel.getPossiblePerformanceStates();
 
-        // Create hosts and VMs with the initial performance state
+            // Generate cloudlets (shared across all runs)
+            List<DeadlineCloudlet> cloudletListInitial = createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs();
 
-//        for (int i = performanceStates.length - 1; i >= 0; i--) {
-//            MIPS_PER_HOST_MAX = (int) (performanceStates[i].processingFraction() * MIPS_PER_HOST_INITIAL_MAX);
-//            MIPS_PER_VM_MAX = (int) (performanceStates[i].processingFraction() * MIPS_PER_VM_INITIAL_MAX);
-//
-//
-//            MIPS_PER_HOST_MIN = (int) (performanceStates[i].processingFraction() * MIPS_PER_HOST_INITIAL_MIN);
-//            MIPS_PER_VM_MIN = (int) (performanceStates[i].processingFraction() * MIPS_PER_VM_INITIAL_MIN);
-//            POWER_STATE = i;
-//            System.out.printf("""
-//
-//
-//
-//                    -----------------------------------------------------------------------------------------------------------
-//                    Performance State %d: MIPS_PER_HOST = %d, MIPS_PER_VM = %d
-//                    -----------------------------------------------------------------------------------------------------------
-//
-//
-//                    """, i, MIPS_PER_HOST_MAX, MIPS_PER_VM_MAX);
-//
-//            AlgorithmResult resultRR = runAlgorithmAndPrintStats(RoundRobinAlgorithm.class, "Round Robin", cloudletListInitial);
-//            AlgorithmResult resultFCFS = runAlgorithmAndPrintStats(FCFSAlgorithm_bin.class, "FCFS", cloudletListInitial);
-//            AlgorithmResult resultGA = runAlgorithmAndPrintStats(GAAlgorithm.class, "GA", cloudletListInitial);
-//            AlgorithmResult resultACO = runAlgorithmAndPrintStats(ACOAlgorithm.class, "ACO", cloudletListInitial);
-//        }
+            // Collect all results
+            List<AlgorithmResult> results = new ArrayList<>();
 
-            // Create hosts and VMs with the initial performance state
-            List<Vm> vmList = createVms();
-            List<Host> hostList = createHostsInitialDistribution();
-            AlgorithmResult resultRR = runAlgorithmEnergyAware(RoundRobinAlgorithm.class, "Round Robin", cloudletListInitial, hostList, vmList);
+            // Round Robin
+            results.addAll(runAlgorithmEnergyAware(
+                    RoundRobinAlgorithm.class, "Round Robin",
+                    cloudletListInitial, createHostsInitialDistribution(), createVms()));
 
-            // Create hosts and VMs with the initial performance state
-            vmList = createVms();
-            hostList = createHostsInitialDistribution();
-            AlgorithmResult resultFCFS = runAlgorithmEnergyAware(FCFSAlgorithm_bin.class, "FCFS", cloudletListInitial, hostList, vmList);
+            // FCFS
+            results.addAll(runAlgorithmEnergyAware(
+                    FCFSAlgorithm_bin.class, "FCFS",
+                    cloudletListInitial, createHostsInitialDistribution(), createVms()));
 
-            // Create hosts and VMs with the initial performance state
-            vmList = createVms();
-            hostList = createHostsInitialDistribution();
-            AlgorithmResult resultGA = runAlgorithmEnergyAware(GAAlgorithm.class, "GA", cloudletListInitial, hostList, vmList);
+            // GA
+            results.addAll(runAlgorithmEnergyAware(
+                    GAAlgorithm.class, "GA",
+                    cloudletListInitial, createHostsInitialDistribution(), createVms()));
 
-            // Create hosts and VMs with the initial performance state
-            vmList = createVms();
-            hostList = createHostsInitialDistribution();
-            AlgorithmResult resultACO = runAlgorithmEnergyAware(ACOAlgorithm.class, "ACO", cloudletListInitial, hostList, vmList);
+            // ACO
+            results.addAll(runAlgorithmEnergyAware(
+                    ACOAlgorithm.class, "ACO",
+                    cloudletListInitial, createHostsInitialDistribution(), createVms()));
 
+            // Write all SLA stats to a single CSV
+            exportResultsToCsv(results, csvPath);
+
+            System.err.println("✔ Summary written to: " + csvPath);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    // TODO right now every algorithms uses a copy of the global vm's and hosts, which is not ideal. This should be given as parrameter to functions
-
-    public <T extends SchedulingAlgorithm> AlgorithmResult runAlgorithmEnergyAware(Class<T> algorithmClass, String label, List<DeadlineCloudlet> cloudletList, List<Host> hostList, List<Vm> vmList) {
+    public <T extends SchedulingAlgorithm> List<AlgorithmResult> runAlgorithmEnergyAware(Class<T> algorithmClass, String label, List<DeadlineCloudlet> cloudletList, List<Host> hostList, List<Vm> vmList) {
         AlgorithmResult result = null;
+        List<AlgorithmResult> results = new ArrayList<>();
         while(true) {
-//            // print the current performance state, mips and power
-//            for (Host host : hostList) {
-//                PowerModelPStateProcessor powerModel = (PowerModelPStateProcessor) host.getPowerModel();
-//                int currentStateIdx = powerModel.getCurrentPerformanceState();
-//                PowerModelPStateProcessor.PerformanceState currentState = powerModel.getPossiblePerformanceStates()[currentStateIdx];
-//                System.out.printf("Host %d: Performance State %d, ProcessingFraction = %.2f, Power = %.2f W, MIPS Host = %.2f%n",
-//                        host.getId(), currentStateIdx, (currentState.processingFraction()), currentState.powerConsumption(), host.getMips());
-//            }
-//            // now print for each VM the mips consumption and power
-//            for (Vm vm : vmList) {
-//                System.out.printf("VM %d: MIPS = %.2f%n", vm.getId(), vm.getMips());
-//            }
-
 
             result = runAlgorithmAndPrintStats(algorithmClass, label, cloudletList, vmList, hostList);
-//            // print which vm is on which host
-//            System.out.println("\n\n-----------------------------------------------------------------");
-//            System.out.println("VMs and their Hosts:");
-//            System.out.println("-----------------------------------------------------------------\n");
-//            for (Vm vm : result.vms()) {
-//                System.out.printf("VM %d is on Host %d%n", vm.getId(), vm.getHost().getId());
-//            }
+            results.add(result);
             // Check if the SLA violations are bigger than half
             int nrOfSlaViolations = 0;
             for (Cloudlet cl : result.cloudletFinishedList()) {
@@ -133,7 +106,7 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
             }
             if (nrOfSlaViolations >= result.cloudletFinishedList().size() * PERCENTAGE_OF_SLA_VIOLATIONS_NOT_ACCEPTABLE) {
                 System.out.println("SLA violations are not acceptable, stopping the algorithm.");
-                return result; // Return the result if SLA violations are not acceptable
+                return results; // Return the result if SLA violations are not acceptable
             } else {
                 Vm vmToSlowdown = result.vms().get(0); // Get the first VM to modify its power model
                 double cpuStatsToSlowdown = Double.MAX_VALUE;
@@ -148,7 +121,7 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
                     final double vmPower = powerModel.getPower(vmRelativeCpuUtilization) - hostStaticPower + hostStaticPowerByVm; // W
                     final VmResourceStats cpuStats = vm.getCpuUtilizationStats();
                     // if this vm has had a lower CPU utilization than the best so far, then we can slow it down
-                    if(cpuStats.getMean() < cpuStatsToSlowdown) {
+                    if(cpuStats.getMean() < cpuStatsToSlowdown && ((PowerModelPStateProcessor) (vm.getHost().getPowerModel())).getCurrentPerformanceState() > 0) {
                         cpuStatsToSlowdown = cpuStats.getMean();
                         vmToSlowdown = vm;
                     }
@@ -156,11 +129,6 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
                 // slowdown the host that owns the VM
                 int currentStateIdx = ((PowerModelPStateProcessor) (vmToSlowdown.getHost().getPowerModel())).getCurrentPerformanceState();
                 if (currentStateIdx > 0) {
-                    // print the vm mips
-//                    System.out.printf("Slowing down VM %d on Host %d from Performance State %d to %d%n",
-//                            vmToSlowdown.getId(), vmToSlowdown.getHost().getId(), currentStateIdx, currentStateIdx - 1);
-                    // print the vm.getMips()
-//                    System.out.printf("VM %d MIPS before slowdown: %.2f%n", vmToSlowdown.getId(), vmToSlowdown.getMips());
                     HostVmPair hostVmPair = modifyHostAndVmToHaveOneHostWithLowerPower(hostList, vmList, vmToSlowdown);
                     if (hostVmPair == null) {
                         System.out.println("Failed to modify host and VM to have lower power. Stopping the algorithm.");
@@ -170,22 +138,13 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
                         // modify the hostlist and vmlist with the new host and vm
                         hostList = hostVmPair.hosts();
                         vmList = hostVmPair.vms();
-//                        System.out.println("Slowing down host " + vmToSlowdown.getHost().getId() + " to performance state " + (currentStateIdx - 1));
                     }
-                    // print all the vm's and all the hosts and their mips
-//                    for (Host host : hostList) {
-//                        System.out.printf("Host %d: MIPS = %.2f%n", host.getId(), host.getMips());
-//                    }
-//                    for (Vm vm : vmList) {
-//                        System.out.printf("VM %d: MIPS = %.2f%n", vm.getId(), vm.getMips());
-//                    }
-
                 } else {
                     break;
                 }
             }
         }
-        return result;
+        return results;
     }
 
 
@@ -194,10 +153,6 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
 
     public <T extends SchedulingAlgorithm> AlgorithmResult runAlgorithmAndPrintStats(Class<T> algorithmClass, String label, List<DeadlineCloudlet> cloudletListInitial, List<Vm> vmList, List<Host> hostList) {
         try {
-//            List<DeadlineCloudlet> cloudletList = copyCloudlets(cloudletListInitial);
-//            List<Vm> vmList = createVms();
-//            List<Host> hostList = createHostsInitialDistribution();
-
             // Create instance of the algorithm (requires no-arg constructor)
             T algorithm = algorithmClass.getDeclaredConstructor().newInstance();
 
@@ -218,6 +173,54 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
         }
         return null;
     }
+
+    private AlgorithmSummary runAlgorithmAndPrintStatsForCSV(
+            Class<? extends SchedulingAlgorithm> algClass,
+            String label,
+            List<DeadlineCloudlet> cloudlets,
+            List<Vm> vms,
+            List<Host> hosts) {
+
+        try {
+            var alg = algClass.getDeclaredConstructor().newInstance();
+            AlgorithmResult res = alg.run(createRelevantDataForAlgorithms(vms, cloudlets, hosts));
+
+            System.out.printf("%n%n---------------- %s ----------------%n", label);
+
+            /* ---------- SLA stats ---------- */
+            int violations = 0;
+            double tardinessSum = 0;
+            double tardinessMax = 0;
+
+            for (Cloudlet cl : res.cloudletFinishedList()) {
+                if (cl instanceof DeadlineCloudlet dc) {
+                    double miss = dc.getFinishTime() - dc.getDeadline();
+                    if (miss > 0) {
+                        violations++;
+                        tardinessSum += miss;
+                        tardinessMax = Math.max(tardinessMax, miss);
+                    }
+                }
+            }
+            int finished = res.cloudletFinishedList().size();
+            double violationPct = 100.0 * violations / finished;
+            double avgTardiness = violations == 0 ? 0 : tardinessSum / violations;
+
+            System.out.printf("SLA violations: %d/%d (%.2f%%)%n"
+                            + "Average tardiness: %.2f s | Max: %.2f s%n",
+                    violations, finished, violationPct, avgTardiness, tardinessMax);
+
+            /* ---------- Power stats ---------- */
+            double totalPower = printVmsCpuUtilizationAndPowerConsumptionSmallerDataForCSV(res.vms());
+
+            return new AlgorithmSummary(label, totalPower, violationPct,
+                    avgTardiness, tardinessMax);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to run " + label, e);
+        }
+    }
+
 
 
     RelevantDataForAlgorithms createRelevantDataForAlgorithms(List<Vm> vmList, List<DeadlineCloudlet> cloudletList, List<Host> hostList) {
@@ -244,5 +247,19 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
                 cloudletListClone,
                 hostListCopy
         );
+    }
+
+    public record AlgorithmSummary(
+            String name,
+            double totalPowerW,
+            double slaViolationPct,
+            double avgTardiness,
+            double maxTardiness) {
+
+        /** Returns one CSV row, no header. */
+        String toCsv() {
+            return "%s,%.0f,%.2f,%.2f,%.2f".formatted(
+                    name, totalPowerW, slaViolationPct, avgTardiness, maxTardiness);
+        }
     }
 }

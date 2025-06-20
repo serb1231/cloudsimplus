@@ -1,5 +1,6 @@
 package org.APD.Algorithms;
 
+import org.APD.AlgorithmResult;
 import org.APD.DeadlineCloudlet;
 import org.APD.PowerModels.PowerModelPStateProcessor;
 import org.apache.commons.math3.analysis.function.Pow;
@@ -22,6 +23,12 @@ import org.cloudsimplus.vms.Vm;
 import org.cloudsimplus.vms.VmResourceStats;
 import org.cloudsimplus.vms.VmSimple;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -76,19 +83,13 @@ public class AlgorithmBaseFunctionalities {
     protected List<Host> hostList;
 
     int TOTAL_FRAMES = 30; // how long you want the simulation to run in 10s chunks
-    protected static int MIPS_PER_VM_MAX = 5000; // Adjust this to your VM's actual MIPS capacity
-    protected static int MIPS_PER_HOST_MAX = 5000; // Adjust this to your Host's actual MIPS capacity
+    protected static int MIPS_PER_VM_MAX = 10000; // Adjust this to your VM's actual MIPS capacity
+    protected static int MIPS_PER_HOST_MAX = MIPS_PER_VM_MAX; // Adjust this to your Host's actual MIPS capacity
 
-    protected static int MIPS_PER_VM_MIN = 2000; // Adjust this to your VM's actual MIPS capacity
-    protected static int MIPS_PER_HOST_MIN = 2000; // Adjust this to your Host's actual MIPS capacity
+    protected static int MIPS_PER_VM_MIN = 4000; // Adjust this to your VM's actual MIPS capacity
+    protected static int MIPS_PER_HOST_MIN = MIPS_PER_VM_MIN; // Adjust this to your Host's actual MIPS capacity
 
-    protected static int MIPS_PER_VM_INITIAL_MAX = 5000; // Adjust this to your VM's actual MIPS capacity
-    protected static int MIPS_PER_HOST_INITIAL_MAX = 5000; // Adjust this to your Host's actual MIPS capacity
-
-
-    protected static int MIPS_PER_VM_INITIAL_MIN = 2000; // Adjust this to your VM's actual MIPS capacity
-    protected static int MIPS_PER_HOST_INITIAL_MIN = 2000; // Adjust this to your Host's actual MIPS capacity
-
+    protected int ORDER_MAGNITUDE = 1000; // used to scale the cloudlet length to a more realistic value
     protected static int POWER_STATE = 7;
 
     protected static int TOTAL_CLOUDLETS = 0; // total number of cloudlets to be created, set after creating the cloudlet list
@@ -97,7 +98,6 @@ public class AlgorithmBaseFunctionalities {
      * Creates a {@link Datacenter} and its {@link Host}s.
      */
     protected Datacenter createDatacenter() {
-//        List<Host> hostList = createHostsInitialDistribution();
         final var dc = new DatacenterSimple(simulation, hostList);
         dc.setSchedulingInterval(SCHEDULING_INTERVAL);
         return dc;
@@ -108,7 +108,6 @@ public class AlgorithmBaseFunctionalities {
      * This method is used when the hosts are already created and passed as a parameter.
      */
     protected Datacenter createDatacenter(CloudSimPlus simulation, List<Host> hostList) {
-//        hostList = createHostsInitialDistribution();
         final var dc = new DatacenterSimple(simulation, hostList);
         dc.setSchedulingInterval(SCHEDULING_INTERVAL);
         return dc;
@@ -454,46 +453,46 @@ public class AlgorithmBaseFunctionalities {
 
         return vmClone;
     }
-
-    protected boolean wereSLAViolations(List<DeadlineCloudlet> cloudletListFinished) {
-
-        for (Cloudlet cl : cloudletListFinished) {
-            if (cl instanceof DeadlineCloudlet dc) {
-                double finish = dc.getFinishTime();
-                double deadline = dc.getDeadline();
-                boolean metDeadline = finish <= deadline;
-
-                if (!metDeadline) return true;
-            }
-        }
-        return false;
-    }
-
-    protected void printSLAViolations(List<DeadlineCloudlet> cloudletListFinished) {
-        System.out.println("\n------------------------------- SLA VIOLATIONS -------------------------------");
-
-        int violations = 0;
-        int total = 0;
-
-        for (Cloudlet cl : cloudletListFinished) {
-            if (cl instanceof DeadlineCloudlet dc) {
-                total++;
-                double finish = dc.getFinishTime();
-                double deadline = dc.getDeadline();
-                boolean metDeadline = finish <= deadline;
-                double executionRequirement = (double) cl.getLength() / MIPS_PER_VM_MIN;
-                double arrivalTime = dc.getSubmissionDelay();
-
-                System.out.printf("Cloudlet %d: Finish Time = %.2f, Deadline = %.2f -> %s, Arrival Time: %.2f, Execution Requirement = %.2f%n",
-                        dc.getId(), finish, deadline, metDeadline ? "OK" : "VIOLATED", arrivalTime,executionRequirement);
-
-                if (!metDeadline) violations++;
-            }
-        }
-
-        System.out.printf("Total SLA violations: %d out of %d cloudlets (%.2f%%)%n",
-                violations, total, violations * 100.0 / total);
-    }
+//
+//    protected boolean wereSLAViolations(List<DeadlineCloudlet> cloudletListFinished) {
+//
+//        for (Cloudlet cl : cloudletListFinished) {
+//            if (cl instanceof DeadlineCloudlet dc) {
+//                double finish = dc.getFinishTime();
+//                double deadline = dc.getDeadline();
+//                boolean metDeadline = finish <= deadline;
+//
+//                if (!metDeadline) return true;
+//            }
+//        }
+//        return false;
+//    }
+//
+//    protected void printSLAViolations(List<DeadlineCloudlet> cloudletListFinished) {
+//        System.out.println("\n------------------------------- SLA VIOLATIONS -------------------------------");
+//
+//        int violations = 0;
+//        int total = 0;
+//
+//        for (Cloudlet cl : cloudletListFinished) {
+//            if (cl instanceof DeadlineCloudlet dc) {
+//                total++;
+//                double finish = dc.getFinishTime();
+//                double deadline = dc.getDeadline();
+//                boolean metDeadline = finish <= deadline;
+//                double executionRequirement = (double) cl.getLength() / ORDER_MAGNITUDE;
+//                double arrivalTime = dc.getSubmissionDelay();
+//
+//                System.out.printf("Cloudlet %d: Finish Time = %.2f, Deadline = %.2f -> %s, Arrival Time: %.2f, Execution Requirement = %.2f%n",
+//                        dc.getId(), finish, deadline, metDeadline ? "OK" : "VIOLATED", arrivalTime,executionRequirement);
+//
+//                if (!metDeadline) violations++;
+//            }
+//        }
+//
+//        System.out.printf("Total SLA violations: %d out of %d cloudlets (%.2f%%)%n",
+//                violations, total, violations * 100.0 / total);
+//    }
 
     protected void printSLAViolationsStatistics(List<DeadlineCloudlet> cloudletListFinished) {
         System.out.println("\n------------------------------- SLA VIOLATIONS -------------------------------");
@@ -518,7 +517,7 @@ public class AlgorithmBaseFunctionalities {
                 total++;
                 double finish = dc.getFinishTime();
                 double deadline = dc.getDeadline();
-                double executionRequirement = (double) cl.getLength() / MIPS_PER_VM_MIN;
+                double executionRequirement = (double) cl.getLength() / ORDER_MAGNITUDE;
 
                 boolean metDeadline = finish <= deadline;
                 double tardiness = Math.max(0, finish - deadline);
@@ -586,6 +585,101 @@ public class AlgorithmBaseFunctionalities {
         }
     }
 
+    public void exportResultsToCsv(List<AlgorithmResult> results, Path csvFile) {
+
+        /* ---- start fresh: delete previous file if it exists ---- */
+        try {
+            Files.deleteIfExists(csvFile);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to remove old CSV", e);
+        }
+
+        /* ---- loop through every algorithm and delegate to the existing helper ---- */
+        for (AlgorithmResult res : results) {
+            saveSlaStatsToCsv(
+                    res.cloudletFinishedList(),  // list of completed cloudlets
+                    res.algorithmName(),          // name shown in the CSV
+                    res.vms(),                    // VM list for power stats (if helper needs it)
+                    csvFile                       // same file for all rows
+            );
+        }
+    }
+
+
+    /* ---------------------------------------------------------------------------
+     *  NEW helper – write one CSV record with SLA statistics
+     * ---------------------------------------------------------------------------
+     */
+    protected void saveSlaStatsToCsv(List<DeadlineCloudlet> finished,
+                                     String algorithmName,
+                                     List<Vm> vmList,
+                                     Path csvFile) {
+
+        /* ----------------- compute the figures (same logic you had) ----------------- */
+        int violations = 0, total = 0;
+        double totalTardiness = 0, maxTardiness = 0;
+        int tier1 = 0, tier2 = 0, tier3 = 0;
+
+        for (Cloudlet cl : finished) {
+            if (cl instanceof DeadlineCloudlet dc) {
+                total++;
+                double tardiness = Math.max(0, dc.getFinishTime() - dc.getDeadline());
+                if (tardiness > 0) {
+                    violations++;
+                    totalTardiness += tardiness;
+                    maxTardiness = Math.max(maxTardiness, tardiness);
+
+                    double rel = tardiness / dc.getDeadline();
+                    if (rel <= 0.10)      tier1++;
+                    else if (rel <= 0.50) tier2++;
+                    else                  tier3++;
+                }
+            }
+        }
+
+        double violPct = total == 0 ? 0 : 100.0 * violations / total;
+        double avgTard = violations == 0 ? 0 : totalTardiness / violations;
+
+        double totalPowerConsumption = 0;
+        for (Vm vm : vmList) {
+            final var powerModel = vm.getHost().getPowerModel();
+            final double hostStaticPower = powerModel instanceof PowerModelPStateProcessor powerModelHost ? powerModelHost.getStaticPower() : 0;
+            final double hostStaticPowerByVm = hostStaticPower / vm.getHost().getVmCreatedList().size();
+
+            //VM CPU utilization relative to the host capacity
+            final double vmRelativeCpuUtilization = vm.getCpuUtilizationStats().getMean() / vm.getHost().getVmCreatedList().size();
+            final double vmPower = powerModel.getPower(vmRelativeCpuUtilization) - hostStaticPower + hostStaticPowerByVm; // W
+            totalPowerConsumption += vmPower;
+        }
+
+        /* ---------------- write / append the CSV ---------------- */
+        boolean fileExists = Files.exists(csvFile);
+
+        try (BufferedWriter bw = Files.newBufferedWriter(
+                csvFile,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.APPEND)) {
+
+            /* header only the first time */
+            if (!fileExists) {
+                bw.write("Algorithm,TotalCloudlets,Violations,ViolationPct,"
+                        + "Tier1,Tier2,Tier3,AvgTardiness,MaxTardiness,PowerConsumption");
+                bw.newLine();
+            }
+
+            bw.write(String.format(
+                    "%s,%d,%d,%.2f,%d,%d,%d,%.2f,%.2f,%.2f",
+                    algorithmName, total, violations, violPct,
+                    tier1, tier2, tier3, avgTard, maxTardiness, totalPowerConsumption));
+            bw.newLine();
+        } catch (IOException e) {
+            throw new UncheckedIOException("Unable to write SLA CSV", e);
+        }
+    }
+
+
+
     /**
      * Prints the following information from VM's utilization stats:
      * <ul>
@@ -638,12 +732,44 @@ public class AlgorithmBaseFunctionalities {
                     vm.getId(), cpuStats.getMean() * 100, vmPower, hostStaticPower, hostStaticPowerByVm, vmRelativeCpuUtilization);
             // print vm.getHost().getVmCreatedList().size()
             System.out.printf("Host %2d VMs: %d%n", vm.getHost().getId(), vm.getHost().getVmCreatedList().size());
+            // print the power state of the host
+            if (powerModel instanceof PowerModelPStateProcessor p) {
+                System.out.printf("Host %2d Power State: %d%n", vm.getHost().getId(), p.getCurrentPerformanceState());
+            } else {
+                System.out.printf("Host %2d Power Model: %s%n", vm.getHost().getId(), powerModel.getClass().getSimpleName());
+            }
         }
         // print the total power consumption of the host
         System.out.println();
         System.out.printf("Total Host Power Consumption: %.0f W%n", totalPowerConsumption);
-
     }
+
+    protected double printVmsCpuUtilizationAndPowerConsumptionSmallerDataForCSV(List<Vm> vmList) {
+        vmList.sort(comparingLong(vm -> vm.getHost().getId()));
+
+        double totalPower = 0;
+        for (Vm vm : vmList) {
+            var powerModel = vm.getHost().getPowerModel();
+            double hostStaticPower = powerModel instanceof PowerModelPStateProcessor p ? p.getStaticPower() : 0;
+            double hostStaticPerVm = hostStaticPower / vm.getHost().getVmCreatedList().size();
+
+            double vmRelativeUtil = vm.getCpuUtilizationStats().getMean()
+                    / vm.getHost().getVmCreatedList().size();
+            double vmPower = powerModel.getPower(vmRelativeUtil)
+                    - hostStaticPower + hostStaticPerVm;
+
+            totalPower += vmPower;
+
+            System.out.printf(
+                    "Vm %2d CPU: %5.1f%% | Power: %7.0f W "
+                            + "(Host static: %.1f W, per-VM: %.1f W, rel-util: %.2f)%n",
+                    vm.getId(), vm.getCpuUtilizationStats().getMean()*100,
+                    vmPower, hostStaticPower, hostStaticPerVm, vmRelativeUtil);
+        }
+        System.out.printf("%nTotal Host Power Consumption: %.0f W%n%n", totalPower);
+        return totalPower;
+    }
+
 
     /**
      * The Host CPU Utilization History is only computed
