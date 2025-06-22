@@ -21,12 +21,12 @@ import static java.util.Comparator.comparingLong;
 
 public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
-    protected final int numAnts = 20; // Number of ants
-    protected final double evaporationRate = 0.2; // Pheromone evaporation rate
+    protected final int numAnts; // Number of ants
+    protected final double evaporationRate; // Pheromone evaporation rate
     protected final double MIN_PHEROMONE_LEVEL = 0.8;
     protected final double MAX_PHEROMONE_LEVEL = 10.0; // Maximum pheromone level
 
-    protected final int iterations = 70; // Number of iterations for the algorithm
+    protected final int iterations; // Number of iterations for the algorithm
 
     protected final int PHER_INF = 1;
     protected final int HEUR_INF = 2;
@@ -36,7 +36,16 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
         new ACOAlgorithm();
     }
 
+    // Optional: keep a default constructor for compatibility
     public ACOAlgorithm() {
+        this(20, 30, 0.2);
+    }
+
+    public ACOAlgorithm(int numAnts, int iterations, double evaporationRate) {
+        this.numAnts = numAnts;
+        this.iterations = iterations;
+        this.evaporationRate = evaporationRate;
+//        runAlgorithm();
 
 //        vmList = createVms();
 //        cloudletList = createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs();
@@ -72,7 +81,8 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
                 cloudletList,
                 hostList,
                 vmList,
-                broker0.getCloudletFinishedList());
+                broker0.getCloudletFinishedList(),
+                0);
     }
 
     private void  algorithmACO() {

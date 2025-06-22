@@ -25,12 +25,13 @@ import java.util.List;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 import static java.util.Comparator.comparingLong;
 
 public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
 
-    private static final double PERCENTAGE_OF_SLA_VIOLATIONS_NOT_ACCEPTABLE = 0.5; // 10% of SLA violations are not acceptable
+    private static final double PERCENTAGE_OF_SLA_VIOLATIONS_NOT_ACCEPTABLE = 0.6; // 10% of SLA violations are not acceptable
 
     public static void main(String[] args) {
         Log.setLevel(Level.OFF);
@@ -57,40 +58,181 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
 
             // Round Robin
             results.addAll(runAlgorithmEnergyAware(
-                    RoundRobinAlgorithm.class, "Round Robin",
+                    new RoundRobinAlgorithm(), "Round Robin",
                     cloudletListInitial, createHostsInitialDistribution(), createVms()));
 
             // FCFS
             results.addAll(runAlgorithmEnergyAware(
-                    FCFSAlgorithm_bin.class, "FCFS",
+                    new FCFSAlgorithm_bin(), "FCFS",
                     cloudletListInitial, createHostsInitialDistribution(), createVms()));
 
             // GA
             results.addAll(runAlgorithmEnergyAware(
-                    GAAlgorithm.class, "GA",
+                    new GAAlgorithm(), "GA",
                     cloudletListInitial, createHostsInitialDistribution(), createVms()));
 
             // ACO
             results.addAll(runAlgorithmEnergyAware(
-                    ACOAlgorithm.class, "ACO",
+                    new ACOAlgorithm(), "ACO",
                     cloudletListInitial, createHostsInitialDistribution(), createVms()));
 
             // Write all SLA stats to a single CSV
             exportResultsToCsv(results, csvPath);
 
+//            testACOHyperparametersParallel();
+
             System.err.println("✔ Summary written to: " + csvPath);
+
+            runOneAlgorithmMultipleTimes(
+                    RoundRobinAlgorithm.class, "Round Robin Multiple Runs", 128);
+            runOneAlgorithmMultipleTimes(
+                    FCFSAlgorithm_bin.class, "FCFS Multiple Runs", 128);
+            runOneAlgorithmMultipleTimes(
+                    GAAlgorithm.class, "GA Multiple Runs", 128);
+            runOneAlgorithmMultipleTimes(
+                    ACOAlgorithm.class, "ACO Multiple Runs", 128);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    public <T extends SchedulingAlgorithm> List<AlgorithmResult> runAlgorithmEnergyAware(Class<T> algorithmClass, String label, List<DeadlineCloudlet> cloudletList, List<Host> hostList, List<Vm> vmList) {
+    public void testACOHyperparametersParallel() {
+        int[] antOptions = {5, 10, 20, 30, 40};
+        int[] iterationOptions = {10, 20, 30, 50, 70};
+        double[] evaporationRates = {0.1, 0.2};
+
+        // Use a thread pool the size of logical processors
+        int numThreads = Runtime.getRuntime().availableProcessors(); // e.g. 32
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+
+        List<Future<List<AlgorithmResult>>> futures = new ArrayList<>();
+
+        for (int ants : antOptions) {
+            for (int iters : iterationOptions) {
+                for (double evap : evaporationRates) {
+                    final int finalAnts = ants;
+                    final int finalIters = iters;
+                    final double finalEvap = evap;
+
+                    Callable<List<AlgorithmResult>> task = () -> {
+                        String label = String.format("ACO_Ants%d_Iters%d_Evap%.2f", finalAnts, finalIters, finalEvap);
+                        System.out.println(">>> Running: " + label);
+
+                        List<DeadlineCloudlet> cloudlets = createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs();
+                        List<Vm> vms = createVms();
+                        List<Host> hosts = createHostsInitialDistribution();
+
+                        ACOAlgorithm aco = new ACOAlgorithm(finalAnts, finalIters, finalEvap);
+                        List<AlgorithmResult> result = runAlgorithmEnergyAware(
+                                aco, label, cloudlets, hosts, vms
+                        );
+
+                        return result;
+                    };
+
+                    futures.add(executor.submit(task));
+                }
+            }
+        }
+
+        // Gather results and write them
+        List<AlgorithmResult> allResults = new ArrayList<>();
+        for (Future<List<AlgorithmResult>> future : futures) {
+            try {
+                List<AlgorithmResult> result = future.get();  // waits if needed
+                if (result != null)
+                    allResults.addAll(result);
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
+        executor.shutdown();
+
+        // Export all results after runs are complete (single write)
+        Path outputPath = Paths.get("results_csv", "aco_param_sweep.csv");
+        exportResultsToCsv(allResults, outputPath);
+
+        System.out.println("✔ All parallel ACO runs complete and saved.");
+    }
+
+
+    public void runOneAlgorithmMultipleTimes(
+            Class<? extends SchedulingAlgorithm> algorithmClass, String label, int iterations) {
+
+        String cleanLabel = label.replaceAll("\\s+", "_");
+        Path outputDir = Paths.get("results_csv", "results_multiple_iterations_algorithm");
+        Path outputFile = outputDir.resolve(cleanLabel + ".csv");
+
+        try {
+            Files.createDirectories(outputDir);
+
+            int numThreads = Runtime.getRuntime().availableProcessors(); // use all logical cores
+            ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+            List<Future<List<AlgorithmResult>>> futures = new ArrayList<>();
+
+            for (int i = 1; i <= iterations; i++) {
+                final int runIndex = i;
+                Callable<List<AlgorithmResult>> task = () -> {
+                    String runLabel = String.format("%s_%dtimes_%d", cleanLabel, iterations, runIndex);
+                    System.out.println(">>> Running: " + runLabel);
+
+                    List<DeadlineCloudlet> cloudlets = createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs();
+                    List<Vm> vms = createVms();
+                    List<Host> hosts = createHostsInitialDistribution();
+
+                    long start = System.currentTimeMillis();
+                    SchedulingAlgorithm algorithmInstance = algorithmClass.getDeclaredConstructor().newInstance();
+
+                    List<AlgorithmResult> results = runAlgorithmEnergyAware(algorithmInstance, runLabel, cloudlets, hosts, vms);
+                    long elapsed = System.currentTimeMillis() - start;
+
+                    // Add total execution time to each result
+                    return results.stream().map(r ->
+                            new AlgorithmResult(
+                                    r.algorithmName(),
+                                    r.cloudlets(),
+                                    r.hosts(),
+                                    r.vms(),
+                                    r.cloudletFinishedList(),
+                                    elapsed
+                            )
+                    ).toList();
+                };
+
+                futures.add(executor.submit(task));
+            }
+
+            // Wait for all to finish and collect results
+            List<AlgorithmResult> allRuns = new ArrayList<>();
+            for (Future<List<AlgorithmResult>> future : futures) {
+                try {
+                    allRuns.addAll(future.get()); // blocking wait
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            executor.shutdown();
+            exportResultsToCsv(allRuns, outputFile);
+
+            System.out.println("✔ Parallel multiple-run results saved to: " + outputFile.toAbsolutePath());
+
+        } catch (Exception e) {
+            System.err.println("❌ Error running " + label + " multiple times (parallelized)");
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public List<AlgorithmResult> runAlgorithmEnergyAware(SchedulingAlgorithm algorithmInstance, String label, List<DeadlineCloudlet> cloudletList, List<Host> hostList, List<Vm> vmList) {
         AlgorithmResult result = null;
         List<AlgorithmResult> results = new ArrayList<>();
         while(true) {
 
-            result = runAlgorithmAndPrintStats(algorithmClass, label, cloudletList, vmList, hostList);
+            result = runAlgorithmAndPrintStats(algorithmInstance, label, cloudletList, vmList, hostList);
             results.add(result);
             // Check if the SLA violations are bigger than half
             int nrOfSlaViolations = 0;
@@ -151,12 +293,17 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
 
 
 
-    public <T extends SchedulingAlgorithm> AlgorithmResult runAlgorithmAndPrintStats(Class<T> algorithmClass, String label, List<DeadlineCloudlet> cloudletListInitial, List<Vm> vmList, List<Host> hostList) {
+    public AlgorithmResult runAlgorithmAndPrintStats(SchedulingAlgorithm algorithmInstance, String label, List<DeadlineCloudlet> cloudletListInitial, List<Vm> vmList, List<Host> hostList) {
         try {
             // Create instance of the algorithm (requires no-arg constructor)
-            T algorithm = algorithmClass.getDeclaredConstructor().newInstance();
+//            T algorithm = algorithmClass.getDeclaredConstructor().newInstance();
+            // start timer
+            long startTime = System.currentTimeMillis();
 
-            AlgorithmResult result = algorithm.run(createRelevantDataForAlgorithms(vmList, cloudletListInitial, hostList));
+            AlgorithmResult result = algorithmInstance.run(createRelevantDataForAlgorithms(vmList, cloudletListInitial, hostList));
+
+            // end timer
+            long total_time = System.currentTimeMillis() - startTime;
 
             System.out.println("\n\n-----------------------------------------------------------------");
             System.out.println("Violated Cloudlets for " + label + ":");
@@ -165,7 +312,14 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
             printSLAViolationsStatistics(result.cloudletFinishedList());
             printVmsCpuUtilizationAndPowerConsumption(result.vms());
 
-            return result;
+            return new AlgorithmResult(
+                    label,
+                    result.cloudlets(),
+                    result.hosts(),
+                    result.vms(),
+                    result.cloudletFinishedList(),
+                    total_time
+            );
 
         } catch (Exception e) {
             System.err.println("Failed to instantiate or run " + label + " algorithm.");
@@ -173,54 +327,6 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
         }
         return null;
     }
-
-    private AlgorithmSummary runAlgorithmAndPrintStatsForCSV(
-            Class<? extends SchedulingAlgorithm> algClass,
-            String label,
-            List<DeadlineCloudlet> cloudlets,
-            List<Vm> vms,
-            List<Host> hosts) {
-
-        try {
-            var alg = algClass.getDeclaredConstructor().newInstance();
-            AlgorithmResult res = alg.run(createRelevantDataForAlgorithms(vms, cloudlets, hosts));
-
-            System.out.printf("%n%n---------------- %s ----------------%n", label);
-
-            /* ---------- SLA stats ---------- */
-            int violations = 0;
-            double tardinessSum = 0;
-            double tardinessMax = 0;
-
-            for (Cloudlet cl : res.cloudletFinishedList()) {
-                if (cl instanceof DeadlineCloudlet dc) {
-                    double miss = dc.getFinishTime() - dc.getDeadline();
-                    if (miss > 0) {
-                        violations++;
-                        tardinessSum += miss;
-                        tardinessMax = Math.max(tardinessMax, miss);
-                    }
-                }
-            }
-            int finished = res.cloudletFinishedList().size();
-            double violationPct = 100.0 * violations / finished;
-            double avgTardiness = violations == 0 ? 0 : tardinessSum / violations;
-
-            System.out.printf("SLA violations: %d/%d (%.2f%%)%n"
-                            + "Average tardiness: %.2f s | Max: %.2f s%n",
-                    violations, finished, violationPct, avgTardiness, tardinessMax);
-
-            /* ---------- Power stats ---------- */
-            double totalPower = printVmsCpuUtilizationAndPowerConsumptionSmallerDataForCSV(res.vms());
-
-            return new AlgorithmSummary(label, totalPower, violationPct,
-                    avgTardiness, tardinessMax);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to run " + label, e);
-        }
-    }
-
 
 
     RelevantDataForAlgorithms createRelevantDataForAlgorithms(List<Vm> vmList, List<DeadlineCloudlet> cloudletList, List<Host> hostList) {

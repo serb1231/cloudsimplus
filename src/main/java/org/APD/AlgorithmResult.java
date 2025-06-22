@@ -11,5 +11,6 @@ public record AlgorithmResult(
         List<DeadlineCloudlet> cloudlets,
         List<Host> hosts,
         List<Vm> vms,
-        List<DeadlineCloudlet> cloudletFinishedList
+        List<DeadlineCloudlet> cloudletFinishedList,
+        long totalExecutionTime
 ) {}

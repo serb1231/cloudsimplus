@@ -600,6 +600,7 @@ public class AlgorithmBaseFunctionalities {
                     res.cloudletFinishedList(),  // list of completed cloudlets
                     res.algorithmName(),          // name shown in the CSV
                     res.vms(),                    // VM list for power stats (if helper needs it)
+                    res.totalExecutionTime(),     // total time taken for the algorithm
                     csvFile                       // same file for all rows
             );
         }
@@ -613,6 +614,7 @@ public class AlgorithmBaseFunctionalities {
     protected void saveSlaStatsToCsv(List<DeadlineCloudlet> finished,
                                      String algorithmName,
                                      List<Vm> vmList,
+                                     long totalExecutionTime,
                                      Path csvFile) {
 
         /* ----------------- compute the figures (same logic you had) ----------------- */
@@ -664,14 +666,14 @@ public class AlgorithmBaseFunctionalities {
             /* header only the first time */
             if (!fileExists) {
                 bw.write("Algorithm,TotalCloudlets,Violations,ViolationPct,"
-                        + "Tier1,Tier2,Tier3,AvgTardiness,MaxTardiness,PowerConsumption");
+                        + "Tier1,Tier2,Tier3,AvgTardiness,MaxTardiness,PowerConsumption,TotalTimeTaken");
                 bw.newLine();
             }
 
             bw.write(String.format(
-                    "%s,%d,%d,%.2f,%d,%d,%d,%.2f,%.2f,%.2f",
+                    "%s,%d,%d,%.2f,%d,%d,%d,%.2f,%.2f,%.2f,%.2f",
                     algorithmName, total, violations, violPct,
-                    tier1, tier2, tier3, avgTard, maxTardiness, totalPowerConsumption));
+                    tier1, tier2, tier3, avgTard, maxTardiness, totalPowerConsumption, totalExecutionTime / 1000.0));
             bw.newLine();
         } catch (IOException e) {
             throw new UncheckedIOException("Unable to write SLA CSV", e);

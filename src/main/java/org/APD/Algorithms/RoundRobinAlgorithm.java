@@ -91,7 +91,8 @@ public class RoundRobinAlgorithm extends BaseSchedulingAlgorithm {
                 cloudletList,
                 hostList,
                 vmList,
-                broker0.getCloudletFinishedList()
+                broker0.getCloudletFinishedList(),
+                0
         );
     }
 }

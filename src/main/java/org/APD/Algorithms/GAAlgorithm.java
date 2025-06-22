@@ -36,7 +36,7 @@ public class GAAlgorithm extends BaseSchedulingAlgorithm {
 
         algorithmGA();
 
-        return new AlgorithmResult("GA", cloudletList, hostList, vmList, broker0.getCloudletFinishedList());
+        return new AlgorithmResult("GA", cloudletList, hostList, vmList, broker0.getCloudletFinishedList(), 0);
     }
 
     public static void main(String[] args) {

@@ -94,7 +94,8 @@ public class FCFSAlgorithm_bin  extends BaseSchedulingAlgorithm {
                 cloudletList,
                 hostList,
                 vmList,
-                broker0.getCloudletFinishedList());
+                broker0.getCloudletFinishedList(),
+                0);
     }
 
     private void submitNextFCFS(Queue<Cloudlet> queue, DatacenterBroker broker, List<Vm> vmList, Set<Vm> busyVms) {
