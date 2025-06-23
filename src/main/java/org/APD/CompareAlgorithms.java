@@ -98,51 +98,54 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
     }
 
     public void testACOHyperparametersParallel() {
-        int[] antOptions = {5, 10, 20, 30, 40};
-        int[] iterationOptions = {10, 20, 30, 50, 70};
+        int[] antOptions = {5, 10, 20, 30};
+        int[] iterationOptions = {10, 20, 30, 50};
         double[] evaporationRates = {0.1, 0.2};
+        int runsPerConfig = 16;
 
-        // Use a thread pool the size of logical processors
-        int numThreads = Runtime.getRuntime().availableProcessors(); // e.g. 32
+        // Parallel execution
+        int numThreads = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-
         List<Future<List<AlgorithmResult>>> futures = new ArrayList<>();
 
         for (int ants : antOptions) {
             for (int iters : iterationOptions) {
                 for (double evap : evaporationRates) {
-                    final int finalAnts = ants;
-                    final int finalIters = iters;
-                    final double finalEvap = evap;
+                    // print the current configuration
+                    System.out.printf("Running ACO with %d ants, %d iterations, evaporation %.2f%n", ants, iters, evap);
+                    for (int run = 1; run <= runsPerConfig; run++) {
+                        final int finalAnts = ants;
+                        final int finalIters = iters;
+                        final double finalEvap = evap;
+                        final int finalRun = run;
 
-                    Callable<List<AlgorithmResult>> task = () -> {
-                        String label = String.format("ACO_Ants%d_Iters%d_Evap%.2f", finalAnts, finalIters, finalEvap);
-                        System.out.println(">>> Running: " + label);
+                        Callable<List<AlgorithmResult>> task = () -> {
+                            String label = String.format("ACO_Ants%d_Iters%d_Evap%.2f_iter_%d",
+                                    finalAnts, finalIters, finalEvap, finalRun);
+                            System.out.println(">>> Running: " + label);
 
-                        List<DeadlineCloudlet> cloudlets = createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs();
-                        List<Vm> vms = createVms();
-                        List<Host> hosts = createHostsInitialDistribution();
+                            List<DeadlineCloudlet> cloudlets = createCloudletsBurstyArrivalTightDeadlineHeavyTailoredBigGroupedJobs();
+                            List<Vm> vms = createVms();
+                            List<Host> hosts = createHostsInitialDistribution();
 
-                        ACOAlgorithm aco = new ACOAlgorithm(finalAnts, finalIters, finalEvap);
-                        List<AlgorithmResult> result = runAlgorithmEnergyAware(
-                                aco, label, cloudlets, hosts, vms
-                        );
+                            ACOAlgorithm aco = new ACOAlgorithm(finalAnts, finalIters, finalEvap);
+                            return runAlgorithmEnergyAware(aco, label, cloudlets, hosts, vms);
+                        };
 
-                        return result;
-                    };
-
-                    futures.add(executor.submit(task));
+                        futures.add(executor.submit(task));
+                    }
                 }
             }
         }
 
-        // Gather results and write them
+        // Gather results
         List<AlgorithmResult> allResults = new ArrayList<>();
         for (Future<List<AlgorithmResult>> future : futures) {
             try {
-                List<AlgorithmResult> result = future.get();  // waits if needed
-                if (result != null)
+                List<AlgorithmResult> result = future.get(); // blocking wait
+                if (result != null) {
                     allResults.addAll(result);
+                }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
@@ -150,19 +153,19 @@ public class CompareAlgorithms extends AlgorithmBaseFunctionalities {
 
         executor.shutdown();
 
-        // Export all results after runs are complete (single write)
+        // Export all to CSV
         Path outputPath = Paths.get("results_csv", "aco_param_sweep.csv");
         exportResultsToCsv(allResults, outputPath);
-
-        System.out.println("✔ All parallel ACO runs complete and saved.");
+        System.out.println("✔ All ACO parameter runs saved to: " + outputPath);
     }
+
 
 
     public void runOneAlgorithmMultipleTimes(
             Class<? extends SchedulingAlgorithm> algorithmClass, String label, int iterations) {
 
         String cleanLabel = label.replaceAll("\\s+", "_");
-        Path outputDir = Paths.get("results_csv", "results_multiple_iterations_algorithm");
+        Path outputDir = Paths.get("results_csv", "results_multiple_iterations_algorithm_smaller_aco");
         Path outputFile = outputDir.resolve(cleanLabel + ".csv");
 
         try {

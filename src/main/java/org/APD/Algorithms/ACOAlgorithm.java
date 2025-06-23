@@ -38,7 +38,7 @@ public class ACOAlgorithm extends BaseSchedulingAlgorithm {
 
     // Optional: keep a default constructor for compatibility
     public ACOAlgorithm() {
-        this(20, 30, 0.2);
+        this(15, 10, 0.2);
     }
 
     public ACOAlgorithm(int numAnts, int iterations, double evaporationRate) {
